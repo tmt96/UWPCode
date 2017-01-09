@@ -1,5 +1,6 @@
-﻿->**Development Journal - UWPCode**<-
-->Minh Tuan Tran<-
+﻿**Development Journal - UWPCode**
+
+Minh Tuan Tran
 
 ## 1/6/2017
 
@@ -15,4 +16,6 @@ Spent two days battling my laptop with updates, VS errors & others. Fed up and f
 
 Process really picked up (despite spending an afternoon setting up the drive for UWP development). Have the desired UI. However, I'm well 2 days behind schedule now.
 
-![Program GUI](GUI.png)
+Program GUI
+
+![Program GUI](GUI.PNG)
