@@ -95,8 +95,6 @@
             <controls:PageHeader.PrimaryCommands>
                 <AppBarButton Icon="Find" Label="Find/Replace" />
                 <AppBarButton Icon="List" Label="Function List" />
-                <AppBarButton Icon="Undo" Label="Undo" />
-                <AppBarButton Icon="Redo" Label="Redo" />
                 <AppBarButton Icon="TwoPage" Label="Split View" />
                 <AppBarButton Icon="Save" Label="Save" />
             </controls:PageHeader.PrimaryCommands>
