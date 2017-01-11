@@ -10,8 +10,13 @@
     xmlns:local="using:UWPCode.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="using:UWPCode.Views"
+    xmlns:vm="using:UWPCode.ViewModels"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
+
+    <Page.DataContext>
+        <vm:MainPageViewModel x:Name="ViewModel" />
+    </Page.DataContext>
 
     <Controls:HamburgerMenu x:Name="MyHamburgerMenu" DisplayMode="Overlay">
 
@@ -22,11 +27,24 @@
                     <SymbolIcon
                         Width="48"
                         Height="48"
-                        Symbol="Add" />
+                        Symbol="Bookmarks" />
                     <TextBlock
                         Margin="12,0,0,0"
                         VerticalAlignment="Center"
-                        Text="Add File" />
+                        Text="Function List" />
+                </StackPanel>
+            </Controls:HamburgerButtonInfo>
+
+            <Controls:HamburgerButtonInfo ButtonType="Command" ClearHistory="True">
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon
+                        Width="48"
+                        Height="48"
+                        Symbol="TwoPage" />
+                    <TextBlock
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Text="Split View" />
                 </StackPanel>
             </Controls:HamburgerButtonInfo>
 
@@ -35,7 +53,7 @@
                     <SymbolIcon
                         Width="48"
                         Height="48"
-                        Symbol="Page" />
+                        Symbol="List" />
                     <TextBlock
                         Margin="12,0,0,0"
                         VerticalAlignment="Center"

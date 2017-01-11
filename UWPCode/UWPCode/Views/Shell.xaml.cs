@@ -8,6 +8,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Template10.Mvvm;
+using UWPCode.ViewModels;
 
 namespace UWPCode.Views
 {
@@ -36,6 +37,8 @@ namespace UWPCode.Views
             HamburgerMenu.IsFullScreen = _settings.IsFullScreen;
             HamburgerMenu.HamburgerButtonVisibility = _settings.ShowHamburgerButton ? Visibility.Visible : Visibility.Collapsed;
         }
+
+
     }
 }
 

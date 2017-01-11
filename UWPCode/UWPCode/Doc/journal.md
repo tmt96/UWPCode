@@ -19,3 +19,8 @@ Process really picked up (despite spending an afternoon setting up the drive for
 Program GUI
 
 ![Program GUI](GUI.PNG)
+
+## 1/11/2017
+Trouble with adding logic to the program. Since my hamburger menu is in a different layer than my mainpage, I cannot easily carry out action from the hamburger menu (add/open file) and have it change the mainpage (editor, etc). One option is to reorganize my hamburger menu & command bar.
+
+The goal today is to have the program successfully open & save a file. Hopefully I could make it.
