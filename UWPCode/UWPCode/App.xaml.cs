@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
+using UWPCode.Models;
 
 namespace UWPCode
 {
@@ -17,9 +18,12 @@ namespace UWPCode
     [Bindable]
     sealed partial class App : BootStrapper
     {
+        private BufferOrganizer bufferOrganizer;
+
         public App()
         {
             InitializeComponent();
+            bufferOrganizer = new BufferOrganizer();
             SplashFactory = (e) => new Views.Splash(e);
 
             #region app settings
@@ -34,6 +38,14 @@ namespace UWPCode
             AutoExtendExecutionSession = true;
 
             #endregion
+        }
+
+        internal BufferOrganizer BufferOrganizer
+        {
+            get
+            {
+                return bufferOrganizer;
+            }
         }
 
         public override UIElement CreateRootElement(IActivatedEventArgs e)
@@ -52,6 +64,7 @@ namespace UWPCode
             // TODO: add your long-running task here
             await NavigationService.NavigateAsync(typeof(Views.MainPage));
         }
+
     }
 }
 

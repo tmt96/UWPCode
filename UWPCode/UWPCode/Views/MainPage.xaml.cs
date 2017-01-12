@@ -4,6 +4,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
+using Windows.Storage;
+using System.Threading.Tasks;
 
 namespace UWPCode.Views
 {
@@ -12,6 +14,7 @@ namespace UWPCode.Views
         public MainPage()
         {
             InitializeComponent();
+
             NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
         }
 
@@ -36,16 +39,28 @@ namespace UWPCode.Views
             CreateAndDisplayNewFile();
         }
 
-        private void CreateAndDisplayNewFile()
+        private Models.Buffer CreateAndDisplayNewFile()
         {
             var buffer = ViewModel.CreateNewBuffer();
             DisplayBuffer(buffer);
+            return buffer;
         }
 
         private void DisplayBuffer(Models.Buffer buffer)
         {
             editor.Text = buffer.Text;
             pageHeader.Text = buffer.Name;
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCurrentBuffer();
+        }
+
+        private async Task<StorageFile> SaveCurrentBuffer()
+        {
+            var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
+            return await ViewModel.UpdateAndSaveBuffer(buffer, editor.Text);
         }
     }
 }

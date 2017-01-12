@@ -81,10 +81,5 @@ namespace UWPCode.Models
                 isInFileSystem = value;
             }
         }
-
-        public void UpdateText()
-        {
-
-        }
     }
 }

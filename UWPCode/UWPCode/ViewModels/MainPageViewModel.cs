@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Navigation;
 using Windows.Storage;
 using UWPCode.Models;
 using Windows.UI.Popups;
+using Windows.UI.Xaml;
 
 namespace UWPCode.ViewModels
 {
@@ -54,6 +55,11 @@ namespace UWPCode.ViewModels
         public void GotoSettings() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 0);
 
+        internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
+        {
+            throw new NotImplementedException();
+        }
+
         public void GotoPrivacy() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 1);
 
@@ -63,14 +69,8 @@ namespace UWPCode.ViewModels
         public async Task<Models.Buffer> ChooseAndOpenFile()
         {
             var file = await PickFileAsync();
-            var buffer = await Models.Buffer.CreateBufferFromFileAsync(file);
-            SetCurrentBuffer(buffer);
+            var buffer = await ((App)Application.Current).BufferOrganizer.CreateBufferFromFile(file);
             return buffer;
-        }
-
-        private void SetCurrentBuffer(Models.Buffer buffer)
-        {
-
         }
 
         private async Task<StorageFile> PickFileAsync()
@@ -98,10 +98,7 @@ namespace UWPCode.ViewModels
 
         public Models.Buffer CreateNewBuffer()
         {
-            var buffer = new Models.Buffer
-            {
-                Name = "Document 1"
-            };
+            var buffer = ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
             return buffer;
         }
 
