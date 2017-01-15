@@ -17,6 +17,16 @@
         <vm:MainPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
+    <Page.Resources>
+        <Style x:Key="PanelButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+    </Page.Resources>
+
     <!--<RelativePanel
             EntranceNavigationTransitionInfo.IsTargetElement="True"
             RelativePanel.AlignBottomWithPanel="True"
@@ -72,57 +82,115 @@
 
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <RichEditBox
-            Name="editor"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            AcceptsReturn="True"
-            FontFamily="Consolas"
-            FontSize="12"
-            ScrollViewer.HorizontalScrollBarVisibility="Auto"
-            ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        <RelativePanel Name="menu" Background="#CC000000">
+            <StackPanel
+                Name="primaryButtons"
+                Width="auto"
+                RelativePanel.AlignTopWithPanel="True">
+                <Button
+                    Name="fileListButton"
+                    Click="fileListButton_Click"
+                    Content="&#xEC50;"
+                    Style="{StaticResource PanelButton}" />
 
-        <controls:PageHeader
-            x:Name="pageHeader"
-            Grid.Row="1"
-            VerticalContentAlignment="Center"
-            FontSize="16"
-            Text="Document 1">
+                <Button
+                    Name="splitViewButton"
+                    Click="splitViewButton_Click"
+                    Content="&#xE89A;"
+                    Style="{StaticResource PanelButton}" />
 
-            <controls:PageHeader.PrimaryCommands>
-                <AppBarButton Icon="Find" Label="Find/Replace" />
-                <AppBarButton
-                    Name="AddFileButton"
-                    Click="AddFileButton_Click"
-                    Icon="Add"
-                    Label="New File" />
-                <AppBarButton
-                    Name="OpenFileButton"
-                    Click="OpenFileButton_Click"
-                    Icon="OpenFile"
-                    Label="Open File" />
-                <AppBarButton
-                    Name="SaveButton"
-                    Click="SaveButton_Click"
-                    Icon="Save"
-                    Label="Save" />
-            </controls:PageHeader.PrimaryCommands>
+                <Button
+                    Name="functionListButton"
+                    Click="functionListButton_Click"
+                    Content="&#xEA37;"
+                    Style="{StaticResource PanelButton}" />
 
-            <!--  secondary commands  -->
-            <controls:PageHeader.SecondaryCommands>
-                <AppBarButton Label="Indent Line" />
-                <AppBarButton Label="Unindent Line" />
-                <AppBarButton Label="Fold Selection" />
-                <AppBarButton Label="Unfold Selection" />
-                <AppBarButton Label="Change Language" />
+                <Button
+                    Name="sourceControlButton"
+                    Click="sourceControlButton_Click"
+                    Content="&#xE8EB;"
+                    Style="{StaticResource PanelButton}" />
 
-            </controls:PageHeader.SecondaryCommands>
-        </controls:PageHeader>
+
+                <Button
+                    Name="remoteFileButton"
+                    Click="remoteFileButton_Click"
+                    Content="&#xE753;"
+                    Style="{StaticResource PanelButton}" />
+            </StackPanel>
+
+            <StackPanel
+                Name="secondaryButtons"
+                Width="auto"
+                RelativePanel.AlignBottomWithPanel="True">
+                <Button
+                    Name="settingButton"
+                    Click="settingButton_Click"
+                    Content="&#xE713;"
+                    Style="{StaticResource PanelButton}" />
+            </StackPanel>
+
+        </RelativePanel>
+
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <RichEditBox
+                Name="editor"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                AcceptsReturn="True"
+                FontFamily="Consolas"
+                FontSize="12"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Auto" />
+
+            <controls:PageHeader
+                x:Name="pageHeader"
+                Grid.Row="1"
+                VerticalContentAlignment="Center"
+                FontSize="16"
+                Text="Document 1">
+
+                <controls:PageHeader.PrimaryCommands>
+                    <AppBarButton Icon="Find" Label="Find/Replace" />
+                    <AppBarButton
+                        Name="AddFileButton"
+                        Click="AddFileButton_Click"
+                        Icon="Add"
+                        Label="New File" />
+                    <AppBarButton
+                        Name="OpenFileButton"
+                        Click="OpenFileButton_Click"
+                        Icon="OpenFile"
+                        Label="Open File" />
+                    <AppBarButton
+                        Name="SaveButton"
+                        Click="SaveButton_Click"
+                        Icon="Save"
+                        Label="Save" />
+                </controls:PageHeader.PrimaryCommands>
+
+                <!--  secondary commands  -->
+                <controls:PageHeader.SecondaryCommands>
+                    <AppBarButton Label="Indent Line" />
+                    <AppBarButton Label="Unindent Line" />
+                    <AppBarButton Label="Fold Selection" />
+                    <AppBarButton Label="Unfold Selection" />
+                    <AppBarButton Label="Change Language" />
+
+                </controls:PageHeader.SecondaryCommands>
+            </controls:PageHeader>
+        </Grid>
 
 
         <VisualStateManager.VisualStateGroups>

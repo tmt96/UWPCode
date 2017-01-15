@@ -61,7 +61,9 @@ namespace UWPCode.Views
         {
             var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
             var text = GetEditorText();
-            return await ViewModel.UpdateAndSaveBuffer(buffer, text);
+            var file = await ViewModel.UpdateAndSaveBuffer(buffer, text);
+            DisplayBuffer(buffer);
+            return file;
         }
 
         private string GetEditorText()
@@ -69,6 +71,41 @@ namespace UWPCode.Views
             string text;
             editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
             return text;
+        }
+
+        private void fileListButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void splitViewButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void functionListButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void functionListButton_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void remoteFileButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void sourceControlButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void settingButton_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.GotoSettings();
         }
     }
 }

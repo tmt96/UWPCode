@@ -18,10 +18,38 @@
         <vm:MainPageViewModel x:Name="ViewModel" />
     </Page.DataContext>
 
-    <Controls:HamburgerMenu x:Name="MyHamburgerMenu" DisplayMode="Overlay">
+    <Page.Resources>
+        <Style x:Key="PanelButton" TargetType="Button">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="24" />
+        </Style>
+    </Page.Resources>
+
+    <RelativePanel Name="menu">
+        <StackPanel
+            Name="primaryButtons"
+            Width="auto"
+            RelativePanel.AlignTopWithPanel="True">
+            <Button
+                Name="fileListButton"
+                Content="&#xECCD;"
+                Style="{StaticResource PanelButton}" />
+        </StackPanel>
+
+        <StackPanel
+            Name="secondaryButtons"
+            Width="auto"
+            RelativePanel.AlignBottomWithPanel="True" />
+    </RelativePanel>
+
+    <!--<Controls:HamburgerMenu x:Name="MyHamburgerMenu" DisplayMode="Overlay">
 
         <Controls:HamburgerMenu.PrimaryButtons>
-            <!--  mainpage button  -->
+    -->
+    <!--  mainpage button  -->
+    <!--
             <Controls:HamburgerButtonInfo ButtonType="Command" ClearHistory="True">
                 <StackPanel Orientation="Horizontal">
                     <SymbolIcon
@@ -89,7 +117,9 @@
         </Controls:HamburgerMenu.PrimaryButtons>
 
         <Controls:HamburgerMenu.SecondaryButtons>
-            <!--  settingspage button  -->
+    -->
+    <!--  settingspage button  -->
+    <!--
 
             <Controls:HamburgerButtonInfo
                 x:Name="SettingsButton"
@@ -111,7 +141,7 @@
             </Controls:HamburgerButtonInfo>
         </Controls:HamburgerMenu.SecondaryButtons>
 
-    </Controls:HamburgerMenu>
+    </Controls:HamburgerMenu>-->
 
 </Page>
 
