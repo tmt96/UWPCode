@@ -14,13 +14,13 @@ namespace UWPCode.Views
         public MainPage()
         {
             InitializeComponent();
-
+            CreateAndDisplayNewFile();
             NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
         }
 
         public void UpdateTextArea(string text)
         {
-            editor.Text = text;
+            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
         }
 
         public async void OpenAndDisplayFile()
@@ -48,7 +48,7 @@ namespace UWPCode.Views
 
         private void DisplayBuffer(Models.Buffer buffer)
         {
-            editor.Text = buffer.Text;
+            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
             pageHeader.Text = buffer.Name;
         }
 
@@ -60,7 +60,15 @@ namespace UWPCode.Views
         private async Task<StorageFile> SaveCurrentBuffer()
         {
             var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
-            return await ViewModel.UpdateAndSaveBuffer(buffer, editor.Text);
+            var text = GetEditorText();
+            return await ViewModel.UpdateAndSaveBuffer(buffer, text);
+        }
+
+        private string GetEditorText()
+        {
+            string text;
+            editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
+            return text;
         }
     }
 }

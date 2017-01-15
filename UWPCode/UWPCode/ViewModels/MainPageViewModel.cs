@@ -49,15 +49,44 @@ namespace UWPCode.ViewModels
             await Task.CompletedTask;
         }
 
+
         public void GotoDetailsPage() =>
             NavigationService.Navigate(typeof(Views.DetailPage), Value);
+
 
         public void GotoSettings() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 0);
 
+
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
         {
-            throw new NotImplementedException();
+            UpdateBuffer(buffer, text);
+            if (!buffer.IsInFileSystem)
+                buffer.File = await PickSaveFileAsync(buffer);
+            return await buffer.SaveFile();
+        }
+
+        private async Task<StorageFile> PickSaveFileAsync(Models.Buffer buffer)
+        {
+            var fileSavePicker = new Windows.Storage.Pickers.FileSavePicker();
+            fileSavePicker.SuggestedStartLocation =
+                Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            fileSavePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            fileSavePicker.SuggestedFileName = buffer.Name;
+
+            // TODO: actually handle the case in which the file saving fail
+            var file = await fileSavePicker.PickSaveFileAsync();
+            if (file == null)
+            {
+                MessageDialog dialog = new MessageDialog("Cannot save file. Please retry!!");
+                await dialog.ShowAsync();
+            }
+            return file;
+        }
+
+        private void UpdateBuffer(Models.Buffer buffer, string text)
+        {
+            buffer.Text = text;
         }
 
         public void GotoPrivacy() =>
@@ -68,12 +97,12 @@ namespace UWPCode.ViewModels
 
         public async Task<Models.Buffer> ChooseAndOpenFile()
         {
-            var file = await PickFileAsync();
+            var file = await PickOpenFileAsync();
             var buffer = await ((App)Application.Current).BufferOrganizer.CreateBufferFromFile(file);
             return buffer;
         }
 
-        private async Task<StorageFile> PickFileAsync()
+        private async Task<StorageFile> PickOpenFileAsync()
         {
             var picker = new Windows.Storage.Pickers.FileOpenPicker
             {
@@ -82,6 +111,7 @@ namespace UWPCode.ViewModels
             };
             picker.FileTypeFilter.Add("*");
 
+            // TODO: Actually handle the casee in which we cannot open file
             StorageFile file = await picker.PickSingleFileAsync();
             if (file != null)
             {

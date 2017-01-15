@@ -29,3 +29,8 @@ The goal today is to have the program successfully open & save a file. Hopefully
 Finished with open & add file. Working on save and close file.
 
 ![Open File](OpenFile.png)
+
+## 1/13/2017
+Happy birthday to me! Got caught in birthday celebration & GRE stuffs for the last two days (ok I got a bit lazy). Anw, the goal now is to move to syntax highlighting part by 1/16, which means that I need to finish save & close files by tomorrow and search/replace by Sunday.
+
+Search and replace seems to be the difficult one. To highlight result I will need a RichEditBox instead of a TextBox, which is awkward to use (no RichEditBox.Text....). It also means I will need to change a bit of my code. We'll see how that go.

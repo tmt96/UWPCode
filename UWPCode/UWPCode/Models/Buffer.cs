@@ -14,14 +14,14 @@ namespace UWPCode.Models
         private string name;
         private string text;
         private bool isSaved;
-        private bool isInFileSystem;
+        private StorageFile file;
 
         public Buffer()
         {
             name = "";
             text = "";
             isSaved = false;
-            isInFileSystem = false;
+            file = null;
         }
 
 
@@ -31,8 +31,7 @@ namespace UWPCode.Models
             {
                 Name = file.Name,
                 Text = await FileIO.ReadTextAsync(file),
-                IsSaved = true,
-                IsInFileSystem = true
+                isSaved = true,
             };
             return buffer;
         }
@@ -62,24 +61,64 @@ namespace UWPCode.Models
             {
                 return isSaved;
             }
-
-            set
-            {
-                isSaved = value;
-            }
         }
 
         public bool IsInFileSystem
         {
             get
             {
-                return isInFileSystem;
+                return file != null;
+            }
+        }
+
+        public StorageFile File
+        {
+            get
+            {
+                return file;
             }
 
             set
             {
-                isInFileSystem = value;
+                file = value;
             }
+        }
+
+        internal async Task<StorageFile> SaveFile()
+        {
+            CachedFileManager.DeferUpdates(file);
+            name = file.Name;
+            isSaved = true;
+            await FileIO.WriteTextAsync(file, text);
+            var status = await CachedFileManager.CompleteUpdatesAsync(file);
+            // TODO: code to notify when cannot save file
+            return file;
+        }
+
+
+    }
+
+    class BufferComparer : EqualityComparer<Buffer>
+    {
+        public override bool Equals(Buffer x, Buffer y)
+        {
+            if (x.IsInFileSystem && y.IsInFileSystem)
+                return x.File.Equals(y.File);
+            else if (x.IsInFileSystem || y.IsInFileSystem)
+                return false;
+            else if (!x.Name.Equals(y.Name) || !x.Text.Equals(y.Text))
+                return false;
+            else return EqualityComparer<Buffer>.Default.Equals(x, y);
+        }
+
+        public override int GetHashCode(Buffer obj)
+        {
+            if (obj.IsInFileSystem)
+                return EqualityComparer<StorageFile>.Default.GetHashCode();
+            else
+                return EqualityComparer<Buffer>.Default.GetHashCode();
         }
     }
 }
+
+

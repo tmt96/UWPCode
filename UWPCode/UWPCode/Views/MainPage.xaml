@@ -77,7 +77,7 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
-        <TextBox
+        <RichEditBox
             Name="editor"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"

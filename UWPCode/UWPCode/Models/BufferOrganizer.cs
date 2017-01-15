@@ -9,12 +9,14 @@ namespace UWPCode.Models
 {
     class BufferOrganizer
     {
-        private List<Buffer> bufferList;
+        private HashSet<Buffer> bufferList;
         private Buffer currentBuffer;
+        private int newBlankBufferCount;
 
         public BufferOrganizer()
         {
-            bufferList = new List<Buffer>();
+            bufferList = new HashSet<Buffer>();
+            newBlankBufferCount = 0;
         }
 
         public Buffer CurrentBuffer
@@ -30,7 +32,7 @@ namespace UWPCode.Models
             }
         }
 
-        public List<Buffer> BufferList
+        public HashSet<Buffer> BufferList
         {
             get
             {
@@ -47,8 +49,9 @@ namespace UWPCode.Models
         {
             var buffer = new Buffer
             {
-                Name = "Document 1"
+                Name = "Document " + (++newBlankBufferCount)
             };
+            newBlankBufferCount++;
             AddNewBuffer(buffer);
             return buffer;
         }
