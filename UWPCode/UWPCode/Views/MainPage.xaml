@@ -149,8 +149,11 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 AcceptsReturn="True"
+                Background="Black"
                 FontFamily="Consolas"
                 FontSize="12"
+                Foreground="White"
+                Opacity="1.0"
                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
 
@@ -162,7 +165,60 @@
                 Text="Document 1">
 
                 <controls:PageHeader.PrimaryCommands>
-                    <AppBarButton Icon="Find" Label="Find/Replace" />
+                    <AppBarButton
+                        Name="FindButton"
+                        Click="FindButton_Click"
+                        Icon="Find"
+                        Label="Find/Replace">
+                        <AppBarButton.Flyout>
+                            <Flyout>
+                                <Grid
+                                    Margin="0"
+                                    Padding="10"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Background="#AA000000">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="4*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontSize="16"
+                                        Foreground="Wheat">
+                                        Find:
+                                    </TextBlock>
+                                    <AutoSuggestBox
+                                        Name="findBox"
+                                        Grid.Column="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Stretch"
+                                        Background="#E0000000"
+                                        FontFamily="Consolas"
+                                        FontSize="12"
+                                        Foreground="White"
+                                        TextChanged="findBox_TextChanged" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Margin="5"
+                                        Background="#CC000000"
+                                        Foreground="White">
+                                        Find Next
+                                    </Button>
+                                    <Button
+                                        Grid.Column="3"
+                                        Margin="5"
+                                        Background="#CC000000"
+                                        Foreground="White">
+                                        Find All
+                                    </Button>
+                                </Grid>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
                     <AppBarButton
                         Name="AddFileButton"
                         Click="AddFileButton_Click"

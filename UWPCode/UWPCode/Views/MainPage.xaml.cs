@@ -6,6 +6,8 @@ using Windows.UI.Xaml.Navigation;
 using System.Collections.ObjectModel;
 using Windows.Storage;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Windows.UI;
 
 namespace UWPCode.Views
 {
@@ -106,6 +108,56 @@ namespace UWPCode.Views
         private void settingButton_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.GotoSettings();
+        }
+
+        private void FindButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private List<int> foundIndex = null;
+
+        private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            var cursorPos = editor.Document.Selection.StartPosition;
+            ClearHighlights();
+            foundIndex = FindAllOccurence(findBox.Text, 0);
+            HighlightAll(Colors.Red, foundIndex, findBox.Text.Length);
+            editor.Document.Selection.SetRange(cursorPos, cursorPos);
+        }
+
+        private void HighlightAll(Color highlightColor, List<int> foundIndex, int length)
+        {
+            foreach (var index in foundIndex)
+            {
+                editor.Document.Selection.SetRange(index, index + length);
+                editor.SelectionHighlightColor.Color = highlightColor;
+            }
+        }
+
+        private void ClearHighlights()
+        {
+            var cursorPos = editor.Document.Selection.StartPosition;
+            string text = GetEditorText();
+            int end = text.Length;
+            editor.Document.Selection.SetRange(0, end);
+            editor.SelectionHighlightColor = (Windows.UI.Xaml.Media.SolidColorBrush) editor.Background;
+            editor.Document.Selection.SetRange(cursorPos, cursorPos);
+        }
+
+        private List<int> FindAllOccurence(string text, int start)
+        {
+            var found = new List<int>();
+            if (text.Length <= 0) return found;
+
+            string editorText = GetEditorText();
+            int pos = editorText.IndexOf(text);
+            while (pos > -1)
+            {
+                found.Add(pos);
+                pos = editorText.IndexOf(text, pos + text.Length);
+            }
+            return found;
         }
     }
 }
