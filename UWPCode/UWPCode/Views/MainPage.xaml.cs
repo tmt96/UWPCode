@@ -131,7 +131,7 @@ namespace UWPCode.Views
             foreach (var index in foundIndex)
             {
                 editor.Document.Selection.SetRange(index, index + length);
-                editor.SelectionHighlightColor.Color = highlightColor;
+                editor.Document.Selection.CharacterFormat.BackgroundColor = highlightColor;
             }
         }
 
@@ -141,7 +141,7 @@ namespace UWPCode.Views
             string text = GetEditorText();
             int end = text.Length;
             editor.Document.Selection.SetRange(0, end);
-            editor.SelectionHighlightColor = (Windows.UI.Xaml.Media.SolidColorBrush) editor.Background;
+            editor.Document.Selection.CharacterFormat.BackgroundColor = (editor.Background as Windows.UI.Xaml.Media.SolidColorBrush).Color;
             editor.Document.Selection.SetRange(cursorPos, cursorPos);
         }
 
