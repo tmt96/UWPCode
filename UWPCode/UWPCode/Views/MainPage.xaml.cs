@@ -8,6 +8,7 @@ using Windows.Storage;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Windows.UI;
+using System.Linq;
 
 namespace UWPCode.Views
 {
@@ -115,14 +116,22 @@ namespace UWPCode.Views
 
         }
 
-        private List<int> foundIndex = null;
+        private List<int> foundPosList = new List<int>();
+        private int indexInFoundPosList = -1;
+        Color activeSelectionColor = Colors.LightBlue;
+        Color inactiveSelectionColor = Colors.LightGray;
 
         private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
+            FindAndHighLightAllOccurrence();
+        }
+
+        private void FindAndHighLightAllOccurrence()
+        {
             var cursorPos = editor.Document.Selection.StartPosition;
             ClearHighlights();
-            foundIndex = FindAllOccurence(findBox.Text, 0);
-            HighlightAll(Colors.Red, foundIndex, findBox.Text.Length);
+            foundPosList = FindAllOccurence(findBox.Text, 0);
+            HighlightAll(inactiveSelectionColor, foundPosList, findBox.Text.Length);
             editor.Document.Selection.SetRange(cursorPos, cursorPos);
         }
 
@@ -148,6 +157,7 @@ namespace UWPCode.Views
         private List<int> FindAllOccurence(string text, int start)
         {
             var found = new List<int>();
+            indexInFoundPosList = -1;
             if (text.Length <= 0) return found;
 
             string editorText = GetEditorText();
@@ -158,6 +168,115 @@ namespace UWPCode.Views
                 pos = editorText.IndexOf(text, pos + text.Length);
             }
             return found;
+        }
+
+        private void searchBoxFlyout_Opening(object sender, object e)
+        {
+            Flyout flyout = sender as Flyout;
+            Style fullWidthFyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            fullWidthFyoutStyle.Setters.Add(new Setter(MinWidthProperty, mainArea.ActualWidth));
+
+            flyout.FlyoutPresenterStyle = fullWidthFyoutStyle;
+        }
+
+        private void replaceBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+
+        }
+
+        private void findNextButton_Click(object sender, RoutedEventArgs e)
+        {
+            FindAndHighlightNextOccurrence(findBox.Text);
+        }
+
+        private int FindAndHighlightNextOccurrence(string text)
+        {
+            if (foundPosList.Contains(editor.Document.Selection.StartPosition))
+            {
+                editor.Document.Selection.CharacterFormat.BackgroundColor = inactiveSelectionColor;
+            }
+            else
+            {
+                editor.Document.Selection.CharacterFormat.BackgroundColor = (editor.Background as Windows.UI.Xaml.Media.SolidColorBrush).Color;
+            }
+
+            if (foundPosList == null || foundPosList.Count == 0) return -1;
+
+            int selectionEnd = editor.Document.Selection.EndPosition;
+            int nextOccurrenceIndex = foundPosList.BinarySearch(selectionEnd);
+            if (nextOccurrenceIndex < 0) nextOccurrenceIndex = ~ nextOccurrenceIndex;
+            if (nextOccurrenceIndex >= foundPosList.Count) nextOccurrenceIndex = 0;
+
+            HighlightAndScrollTo(editor, foundPosList[nextOccurrenceIndex], text.Length, activeSelectionColor);
+            return foundPosList[nextOccurrenceIndex];
+
+        }
+
+        private void HighlightAndScrollTo(RichEditBox editor, int indexInFoundPosList, int length, Color highlightColor)
+        {
+            editor.Document.Selection.SetRange(indexInFoundPosList, indexInFoundPosList + length);
+            editor.Document.Selection.CharacterFormat.BackgroundColor = highlightColor;
+            editor.Document.Selection.ScrollIntoView(Windows.UI.Text.PointOptions.None);
+        }
+
+        private void findPrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            FindAndHighlightPrevOccerrence(findBox.Text);
+        }
+
+        private int FindAndHighlightPrevOccerrence(string text)
+        {
+            ClearHighlights();
+            HighlightAll(inactiveSelectionColor, foundPosList, text.Length)
+
+            if (foundPosList == null || foundPosList.Count == 0) return -1;
+
+            int selectionStart = editor.Document.Selection.StartPosition;
+            int prevOccurrenceIndex = foundPosList.BinarySearch(selectionStart);
+            if (prevOccurrenceIndex < 0) prevOccurrenceIndex = ~prevOccurrenceIndex;
+            prevOccurrenceIndex -= 1;
+            if (prevOccurrenceIndex < 0) prevOccurrenceIndex = foundPosList.Count - 1;
+
+            HighlightAndScrollTo(editor, foundPosList[prevOccurrenceIndex], text.Length, activeSelectionColor);
+            return foundPosList[prevOccurrenceIndex];
+        }
+
+        private void replaceNextButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReplaceNextOccurence(findBox.Text, replaceBox.Text);
+        }
+
+        private int ReplaceNextOccurence(string originalWord, string replacementWord)
+        {
+            int pos = FindAndHighlightNextOccurrence(originalWord);
+            if (pos > -1)
+            {
+                foundPosList.Remove(pos);
+                editor.Document.Selection.SetText(Windows.UI.Text.TextSetOptions.None, replacementWord);
+                for (int index = 0; index < foundPosList.Count; index++)
+                {
+                    if (foundPosList[index] > pos) foundPosList[index] += replacementWord.Length - originalWord.Length;
+                }
+            }
+            return pos;
+        }
+        private void replaceAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReplaceAllOccurence(findBox.Text, replaceBox.Text);
+        }
+
+        private void ReplaceAllOccurence(string originalWord, string replacementWord)
+        {
+            editor.Document.Selection.SetRange(0, 0);
+            while (foundPosList.Count > 0)
+            {
+                ReplaceNextOccurence(originalWord, replacementWord);
+            }
+        }
+
+        private void editor_TextChanged(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

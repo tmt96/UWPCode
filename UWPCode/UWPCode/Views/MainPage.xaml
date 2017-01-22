@@ -25,6 +25,29 @@
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
+
+        <Style x:Key="SearchFlyoutButton" TargetType="Button">
+            <Setter Property="MaxWidth" Value="200" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="#CC000000" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+
+        <Style x:Key="SearchFlyoutTextBlock" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="Wheat" />
+        </Style>
+
+        <Style x:Key="SearchSuggestBox" TargetType="AutoSuggestBox">
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="#E0000000" />
+            <Setter Property="Foreground" Value="WhiteSmoke" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
     </Page.Resources>
 
     <!--<RelativePanel
@@ -138,7 +161,7 @@
         </RelativePanel>
 
 
-        <Grid Grid.Column="1">
+        <Grid Name="mainArea" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
@@ -155,7 +178,8 @@
                 Foreground="White"
                 Opacity="1.0"
                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                TextChanged="editor_TextChanged" />
 
             <controls:PageHeader
                 x:Name="pageHeader"
@@ -171,50 +195,76 @@
                         Icon="Find"
                         Label="Find/Replace">
                         <AppBarButton.Flyout>
-                            <Flyout>
+                            <Flyout
+                                x:Name="searchBoxFlyout"
+                                Opening="searchBoxFlyout_Opening"
+                                Placement="Top">
                                 <Grid
                                     Margin="0"
-                                    Padding="10"
+                                    Padding="0"
                                     HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    Background="#AA000000">
+                                    VerticalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="4*" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        FontSize="16"
-                                        Foreground="Wheat">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Style="{StaticResource SearchFlyoutTextBlock}">
                                         Find:
                                     </TextBlock>
                                     <AutoSuggestBox
                                         Name="findBox"
                                         Grid.Column="1"
-                                        Margin="5"
-                                        HorizontalAlignment="Stretch"
-                                        Background="#E0000000"
-                                        FontFamily="Consolas"
-                                        FontSize="12"
-                                        Foreground="White"
+                                        Style="{StaticResource SearchSuggestBox}"
                                         TextChanged="findBox_TextChanged" />
                                     <Button
+                                        Name="findNextButton"
                                         Grid.Column="2"
-                                        Margin="5"
-                                        Background="#CC000000"
-                                        Foreground="White">
+                                        Click="findNextButton_Click"
+                                        Style="{StaticResource SearchFlyoutButton}">
                                         Find Next
                                     </Button>
                                     <Button
+                                        Name="findPrevButton"
                                         Grid.Column="3"
-                                        Margin="5"
-                                        Background="#CC000000"
-                                        Foreground="White">
-                                        Find All
+                                        Click="findPrevButton_Click"
+                                        Style="{StaticResource SearchFlyoutButton}">
+                                        Find Prev
                                     </Button>
+
+                                    <TextBlock Grid.Row="1" Style="{StaticResource SearchFlyoutTextBlock}">
+                                        Replace:
+                                    </TextBlock>
+                                    <AutoSuggestBox
+                                        Name="replaceBox"
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Style="{StaticResource SearchSuggestBox}"
+                                        TextChanged="replaceBox_TextChanged" />
+                                    <Button
+                                        Name="replaceNextButton"
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        Click="replaceNextButton_Click"
+                                        Style="{StaticResource SearchFlyoutButton}">
+                                        Replace Next
+                                    </Button>
+                                    <Button
+                                        Name="replaceAllButton"
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        Click="replaceAllButton_Click"
+                                        Style="{StaticResource SearchFlyoutButton}">
+                                        Replace All
+                                    </Button>
+
                                 </Grid>
                             </Flyout>
                         </AppBarButton.Flyout>

@@ -43,3 +43,8 @@ Troubles with highlighting search result although searching works (not that it i
 
 ## 1/17/2017
 Able to correctly highlight search result in editor. Turns out it was a weird bug in UWP that automatically hide `SelectionHighlightColor` to show when unfocused. New problem: editor change color theme when in focus. Looking to the solution. I'll start looking at syntax highlighting soon.
+
+## 1/18/2017
+Things to do: Fix the flyout appearance (it is too narrow and the searchbox has no room to breathe), fix the focus problem with the editor, and change the data structure for efficiency (we want the text to be an array of string for faster execution).
+
+Now that I only have a week left, I need to make a choice: should I implement TextMate grammar, or should I implement syntax highlighting on my own? The first option is longer to get things done but more flexible in the future; the second is easier for one language, but not sustainable in the long haul.
