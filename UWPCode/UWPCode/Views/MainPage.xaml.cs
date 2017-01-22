@@ -14,6 +14,11 @@ namespace UWPCode.Views
 {
     public sealed partial class MainPage : Page
     {
+        private List<int> foundPosList = new List<int>();
+        private int indexInFoundPosList = -1;
+        Color activeSelectionColor = Colors.LightBlue;
+        Color inactiveSelectionColor = Colors.LightGray;
+
         public MainPage()
         {
             InitializeComponent();
@@ -21,15 +26,24 @@ namespace UWPCode.Views
             NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
         }
 
-        public void UpdateTextArea(string text)
+        /**************************************
+         * Editor controls
+         * Most controls, by design, call a function when come across an event.
+         * This allows maximal distinction btw UI and functionality
+         * ************************************/
+
+        private void editor_TextChanged(object sender, RoutedEventArgs e)
         {
-            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
+
         }
 
-        public async void OpenAndDisplayFile()
+        /****************************
+         *  Command bar buttons 
+         ****************************/
+
+        private void FindButton_Click(object sender, RoutedEventArgs e)
         {
-            var buffer = await ViewModel.ChooseAndOpenFile();
-            DisplayBuffer(buffer);
+
         }
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
@@ -42,39 +56,14 @@ namespace UWPCode.Views
             CreateAndDisplayNewFile();
         }
 
-        private Models.Buffer CreateAndDisplayNewFile()
-        {
-            var buffer = ViewModel.CreateNewBuffer();
-            DisplayBuffer(buffer);
-            return buffer;
-        }
-
-        private void DisplayBuffer(Models.Buffer buffer)
-        {
-            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
-            pageHeader.Text = buffer.Name;
-        }
-
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             SaveCurrentBuffer();
         }
 
-        private async Task<StorageFile> SaveCurrentBuffer()
-        {
-            var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
-            var text = GetEditorText();
-            var file = await ViewModel.UpdateAndSaveBuffer(buffer, text);
-            DisplayBuffer(buffer);
-            return file;
-        }
-
-        private string GetEditorText()
-        {
-            string text;
-            editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
-            return text;
-        }
+        /************
+         * menu bar button
+         * **********/
 
         private void fileListButton_Click(object sender, RoutedEventArgs e)
         {
@@ -87,11 +76,6 @@ namespace UWPCode.Views
         }
 
         private void functionListButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void functionListButton_Click_1(object sender, RoutedEventArgs e)
         {
 
         }
@@ -111,28 +95,99 @@ namespace UWPCode.Views
             ViewModel.GotoSettings();
         }
 
-        private void FindButton_Click(object sender, RoutedEventArgs e)
-        {
+        /****************
+         * Search bar controls
+         * **************/
 
+        /*** Searchbox open & close ***/
+        private void searchBoxFlyout_Opening(object sender, object e)
+        {
+            Flyout flyout = sender as Flyout;
+            Style fullWidthFyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            fullWidthFyoutStyle.Setters.Add(new Setter(MinWidthProperty, mainArea.ActualWidth));
+
+            flyout.FlyoutPresenterStyle = fullWidthFyoutStyle;
         }
 
-        private List<int> foundPosList = new List<int>();
-        private int indexInFoundPosList = -1;
-        Color activeSelectionColor = Colors.LightBlue;
-        Color inactiveSelectionColor = Colors.LightGray;
+        private void searchBoxFlyout_Closed(object sender, object e)
+        {
+            ClearHighlights();
+        }
 
+        /*** Find controls **/
         private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             FindAndHighLightAllOccurrence();
         }
 
-        private void FindAndHighLightAllOccurrence()
+        private void findNextButton_Click(object sender, RoutedEventArgs e)
         {
-            var cursorPos = editor.Document.Selection.StartPosition;
-            ClearHighlights();
-            foundPosList = FindAllOccurence(findBox.Text, 0);
-            HighlightAll(inactiveSelectionColor, foundPosList, findBox.Text.Length);
-            editor.Document.Selection.SetRange(cursorPos, cursorPos);
+            FindAndHighlightNextOccurrence(findBox.Text);
+        }
+
+        private void findPrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            FindAndHighlightPrevOccerrence(findBox.Text);
+        }
+
+        /***Replace Control***/
+        private void replaceBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+
+        }
+
+        private void replaceNextButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReplaceNextOccurence(findBox.Text, replaceBox.Text);
+        }
+
+        private void replaceAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            ReplaceAllOccurence(findBox.Text, replaceBox.Text);
+        }
+
+        /****************************
+         * Helper functions
+         * **************************/
+
+        public void UpdateTextArea(string text)
+        {
+            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
+        }
+
+        private void DisplayBuffer(Models.Buffer buffer)
+        {
+            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
+            pageHeader.Text = buffer.Name;
+        }
+
+        private string GetEditorText()
+        {
+            string text;
+            editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
+            return text;
+        }
+
+        public async void OpenAndDisplayFile()
+        {
+            var buffer = await ViewModel.ChooseAndOpenFile();
+            DisplayBuffer(buffer);
+        }
+
+        private Models.Buffer CreateAndDisplayNewFile()
+        {
+            var buffer = ViewModel.CreateNewBuffer();
+            DisplayBuffer(buffer);
+            return buffer;
+        }
+
+        private async Task<StorageFile> SaveCurrentBuffer()
+        {
+            var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
+            var text = GetEditorText();
+            var file = await ViewModel.UpdateAndSaveBuffer(buffer, text);
+            DisplayBuffer(buffer);
+            return file;
         }
 
         private void HighlightAll(Color highlightColor, List<int> foundIndex, int length)
@@ -154,6 +209,22 @@ namespace UWPCode.Views
             editor.Document.Selection.SetRange(cursorPos, cursorPos);
         }
 
+        private void HighlightAndScrollTo(RichEditBox editor, int indexInFoundPosList, int length, Color highlightColor)
+        {
+            editor.Document.Selection.SetRange(indexInFoundPosList, indexInFoundPosList + length);
+            editor.Document.Selection.CharacterFormat.BackgroundColor = highlightColor;
+            editor.Document.Selection.ScrollIntoView(Windows.UI.Text.PointOptions.None);
+        }
+
+        private void FindAndHighLightAllOccurrence()
+        {
+            var cursorPos = editor.Document.Selection.StartPosition;
+            ClearHighlights();
+            foundPosList = FindAllOccurence(findBox.Text, 0);
+            HighlightAll(inactiveSelectionColor, foundPosList, findBox.Text.Length);
+            editor.Document.Selection.SetRange(cursorPos, cursorPos);
+        }
+
         private List<int> FindAllOccurence(string text, int start)
         {
             var found = new List<int>();
@@ -168,25 +239,6 @@ namespace UWPCode.Views
                 pos = editorText.IndexOf(text, pos + text.Length);
             }
             return found;
-        }
-
-        private void searchBoxFlyout_Opening(object sender, object e)
-        {
-            Flyout flyout = sender as Flyout;
-            Style fullWidthFyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
-            fullWidthFyoutStyle.Setters.Add(new Setter(MinWidthProperty, mainArea.ActualWidth));
-
-            flyout.FlyoutPresenterStyle = fullWidthFyoutStyle;
-        }
-
-        private void replaceBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-
-        }
-
-        private void findNextButton_Click(object sender, RoutedEventArgs e)
-        {
-            FindAndHighlightNextOccurrence(findBox.Text);
         }
 
         private int FindAndHighlightNextOccurrence(string text)
@@ -212,22 +264,10 @@ namespace UWPCode.Views
 
         }
 
-        private void HighlightAndScrollTo(RichEditBox editor, int indexInFoundPosList, int length, Color highlightColor)
-        {
-            editor.Document.Selection.SetRange(indexInFoundPosList, indexInFoundPosList + length);
-            editor.Document.Selection.CharacterFormat.BackgroundColor = highlightColor;
-            editor.Document.Selection.ScrollIntoView(Windows.UI.Text.PointOptions.None);
-        }
-
-        private void findPrevButton_Click(object sender, RoutedEventArgs e)
-        {
-            FindAndHighlightPrevOccerrence(findBox.Text);
-        }
-
         private int FindAndHighlightPrevOccerrence(string text)
         {
             ClearHighlights();
-            HighlightAll(inactiveSelectionColor, foundPosList, text.Length)
+            HighlightAll(inactiveSelectionColor, foundPosList, text.Length);
 
             if (foundPosList == null || foundPosList.Count == 0) return -1;
 
@@ -239,11 +279,6 @@ namespace UWPCode.Views
 
             HighlightAndScrollTo(editor, foundPosList[prevOccurrenceIndex], text.Length, activeSelectionColor);
             return foundPosList[prevOccurrenceIndex];
-        }
-
-        private void replaceNextButton_Click(object sender, RoutedEventArgs e)
-        {
-            ReplaceNextOccurence(findBox.Text, replaceBox.Text);
         }
 
         private int ReplaceNextOccurence(string originalWord, string replacementWord)
@@ -260,10 +295,6 @@ namespace UWPCode.Views
             }
             return pos;
         }
-        private void replaceAllButton_Click(object sender, RoutedEventArgs e)
-        {
-            ReplaceAllOccurence(findBox.Text, replaceBox.Text);
-        }
 
         private void ReplaceAllOccurence(string originalWord, string replacementWord)
         {
@@ -274,9 +305,5 @@ namespace UWPCode.Views
             }
         }
 
-        private void editor_TextChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

@@ -48,3 +48,13 @@ Able to correctly highlight search result in editor. Turns out it was a weird bu
 Things to do: Fix the flyout appearance (it is too narrow and the searchbox has no room to breathe), fix the focus problem with the editor, and change the data structure for efficiency (we want the text to be an array of string for faster execution).
 
 Now that I only have a week left, I need to make a choice: should I implement TextMate grammar, or should I implement syntax highlighting on my own? The first option is longer to get things done but more flexible in the future; the second is easier for one language, but not sustainable in the long haul.
+
+## 1/21/2017
+Another period of laziness. I have added the ability to search forward & backward, as well as replacing functionality. It's slow, but it works. The search bar now stretches horizontally, which is neat.
+
+Things to do next:
+- Fix editor appearance
+- Settings
+- Multifile functionality
+- Clean code
+- Change text representation into using array of strings to improve performance
