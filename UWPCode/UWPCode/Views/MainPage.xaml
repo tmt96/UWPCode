@@ -19,7 +19,6 @@
 
     <Page.Resources>
         <Style x:Key="PanelButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
             <Setter Property="Width" Value="48" />
             <Setter Property="Height" Value="48" />
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
@@ -30,14 +29,11 @@
             <Setter Property="MaxWidth" Value="200" />
             <Setter Property="Margin" Value="5" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="#CC000000" />
-            <Setter Property="Foreground" Value="White" />
         </Style>
 
         <Style x:Key="SearchFlyoutTextBlock" TargetType="TextBlock">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="FontSize" Value="16" />
-            <Setter Property="Foreground" Value="Wheat" />
         </Style>
 
         <Style x:Key="SearchSuggestBox" TargetType="AutoSuggestBox">
@@ -57,12 +53,9 @@
             <Setter Property="SelectionHighlightColor" Value="{ThemeResource SystemControlHighlightAccentBrush}" />
             <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundChromeDisabledLowBrush}" />
             <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
-            <Setter Property="FontFamily" Value="Consolas" />
-            <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
             <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
-            <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="AcceptsReturn" Value="True" />
             <Setter Property="Opacity" Value="1.0" />
             <Setter Property="Padding" Value="{ThemeResource TextControlThemePadding}" />
@@ -197,7 +190,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <RelativePanel Name="menu" Background="#CC000000">
+        <RelativePanel Name="menu">
             <StackPanel
                 Name="primaryButtons"
                 Width="auto"
@@ -258,8 +251,12 @@
                 Name="editor"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
+                FontFamily="{Binding FontFamily, Mode=TwoWay}"
+                FontSize="{Binding FontSize, Mode=TwoWay}"
+                KeyDown="editor_KeyDown"
                 Style="{StaticResource CodeEditorStyle}"
-                TextChanged="editor_TextChanged" />
+                TextChanged="editor_TextChanged"
+                TextWrapping="{Binding WordWrap, Mode=TwoWay}" />
 
             <controls:PageHeader
                 x:Name="pageHeader"
@@ -271,13 +268,13 @@
                 <controls:PageHeader.PrimaryCommands>
                     <AppBarButton
                         Name="FindButton"
-                        Click="FindButton_Click"
                         Icon="Find"
                         Label="Find/Replace">
                         <AppBarButton.Flyout>
                             <Flyout
                                 x:Name="searchBoxFlyout"
                                 Closed="searchBoxFlyout_Closed"
+                                Opened="searchBoxFlyout_Opened"
                                 Opening="searchBoxFlyout_Opening"
                                 Placement="Top">
                                 <Grid

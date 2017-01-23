@@ -40,7 +40,6 @@ namespace UWPCode.Services.SettingsServices
             {
                 _helper.Write(nameof(AppTheme), value.ToString());
                 (Window.Current.Content as FrameworkElement).RequestedTheme = value.ToElementTheme();
-                //Views.Shell.HamburgerMenu.RefreshStyles(value, true);
             }
         }
 
@@ -60,7 +59,6 @@ namespace UWPCode.Services.SettingsServices
             set
             {
                 _helper.Write(nameof(ShowHamburgerButton), value);
-                //Views.Shell.HamburgerMenu.HamburgerButtonVisibility = value ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -70,7 +68,64 @@ namespace UWPCode.Services.SettingsServices
             set
             {
                 _helper.Write(nameof(IsFullScreen), value);
-                //Views.Shell.HamburgerMenu.IsFullScreen = value;
+            }
+        }
+
+        public TextWrapping WordWrap {
+            get
+            {
+                var wrapMode = TextWrapping.Wrap;
+                var value = _helper.Read<string>(nameof(WordWrap), wrapMode.ToString());
+                return Enum.TryParse<TextWrapping>(value, out wrapMode) ? wrapMode : TextWrapping.NoWrap;
+            }
+            set
+            {
+                _helper.Write(nameof(WordWrap), value);
+            }
+        }
+
+        public int TabSize {
+            get
+            {
+                return _helper.Read<int>(nameof(TabSize), 4);
+            }
+            set
+            {
+                _helper.Write(nameof(TabSize), value);
+            }
+        }
+
+        public int EditorFontSize {
+            get {
+                return _helper.Read<int>(nameof(EditorFontSize), 12);
+            }
+            set
+            {
+                _helper.Write(nameof(EditorFontSize), value);
+            }
+        }
+
+        public bool UseSoftTab
+        {
+            get
+            {
+                return _helper.Read<bool>(nameof(UseSoftTab), true);
+            }
+            set
+            {
+                _helper.Write(nameof(UseSoftTab), value);
+            }
+        }
+
+        public string EditorFontFamily
+        {
+            get
+            {
+                return _helper.Read<string>(nameof(EditorFontFamily), "Consolas");
+            }
+            set
+            {
+                _helper.Write(nameof(EditorFontFamily), value);
             }
         }
     }

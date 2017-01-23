@@ -9,54 +9,67 @@ using Windows.Storage;
 using UWPCode.Models;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
+using UWPCode.Services.SettingsServices;
+using Windows.UI.Xaml.Media;
 
 namespace UWPCode.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        SettingsService settings;
+
         public MainPageViewModel()
         {
+            settings = SettingsService.Instance;
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
-                Value = "Designtime value";
             }
         }
 
-        string _Value = "Gas";
-        public string Value { get { return _Value; } set { Set(ref _Value, value); } }
+        public TextWrapping WordWrap => settings.WordWrap;
+
+        public int FontSize => settings.EditorFontSize;
+
+        public FontFamily FontFamily => new FontFamily(settings.EditorFontFamily);
+
+        public int TabSize => settings.TabSize;
+
+        public bool UseSoftTab => settings.UseSoftTab;
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
-            if (suspensionState.Any())
-            {
-                Value = suspensionState[nameof(Value)]?.ToString();
-            }
+            SettingsChanged(ApplicationData.Current, parameter);
             await Task.CompletedTask;
         }
 
         public override async Task OnNavigatedFromAsync(IDictionary<string, object> suspensionState, bool suspending)
         {
-            if (suspending)
-            {
-                suspensionState[nameof(Value)] = Value;
-            }
+            Windows.Storage.ApplicationData.Current.DataChanged -= SettingsChanged;
             await Task.CompletedTask;
         }
 
         public override async Task OnNavigatingFromAsync(NavigatingEventArgs args)
         {
+            Windows.Storage.ApplicationData.Current.DataChanged -= SettingsChanged;
             args.Cancel = false;
             await Task.CompletedTask;
         }
 
-
-        public void GotoDetailsPage() =>
-            NavigationService.Navigate(typeof(Views.DetailPage), Value);
-
-
         public void GotoSettings() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 0);
 
+        public void GotoPrivacy() =>
+            NavigationService.Navigate(typeof(Views.SettingsPage), 1);
+
+        public void GotoAbout() =>
+            NavigationService.Navigate(typeof(Views.SettingsPage), 2);
+
+        private void SettingsChanged(Windows.Storage.ApplicationData sender, object args)
+        {
+            RaisePropertyChanged(nameof(WordWrap));
+            RaisePropertyChanged(nameof(FontSize));
+            RaisePropertyChanged(nameof(FontFamily));
+        }
 
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
         {
@@ -84,16 +97,7 @@ namespace UWPCode.ViewModels
             return file;
         }
 
-        private void UpdateBuffer(Models.Buffer buffer, string text)
-        {
-            buffer.Text = text;
-        }
-
-        public void GotoPrivacy() =>
-            NavigationService.Navigate(typeof(Views.SettingsPage), 1);
-
-        public void GotoAbout() =>
-            NavigationService.Navigate(typeof(Views.SettingsPage), 2);
+        private void UpdateBuffer(Models.Buffer buffer, string text) => buffer.Text = text;
 
         public async Task<Models.Buffer> ChooseAndOpenFile()
         {
@@ -111,7 +115,7 @@ namespace UWPCode.ViewModels
             };
             picker.FileTypeFilter.Add("*");
 
-            // TODO: Actually handle the casee in which we cannot open file
+            // TODO: Actually handle the case in which we cannot open file
             StorageFile file = await picker.PickSingleFileAsync();
             if (file != null)
             {
@@ -126,12 +130,7 @@ namespace UWPCode.ViewModels
             }
         }
 
-        public Models.Buffer CreateNewBuffer()
-        {
-            var buffer = ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
-            return buffer;
-        }
-
+        public Models.Buffer CreateNewBuffer() => ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
     }
 }
 

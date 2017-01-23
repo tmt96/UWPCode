@@ -2,13 +2,11 @@ using System;
 using UWPCode.ViewModels;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
-using System.Collections.ObjectModel;
 using Windows.Storage;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Windows.UI;
-using System.Linq;
+using Windows.System;
 
 namespace UWPCode.Views
 {
@@ -37,28 +35,52 @@ namespace UWPCode.Views
 
         }
 
+        private void editor_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            RichEditBox richEditBox = sender as RichEditBox;
+            if (richEditBox != null)
+            {
+                switch (e.Key)
+                {
+                    case VirtualKey.Tab:
+                        EnterTabKey(richEditBox, e);
+                        break;
+                }
+            }
+
+        }
+
+        private void EnterTabKey(RichEditBox richEditBox, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (!ViewModel.UseSoftTab)
+            {
+                richEditBox.Document.Selection.TypeText("\t");
+                e.Handled = true;
+            } else
+            {
+                int start = richEditBox.Document.Selection.StartPosition;
+                int end = richEditBox.Document.Selection.EndPosition;
+                richEditBox.Document.Selection.HomeKey(Windows.UI.Text.TextRangeUnit.Line, false);
+                int lineBeginPos = richEditBox.Document.Selection.StartPosition;
+                int numSpaces = ViewModel.TabSize - ((start - lineBeginPos) % ViewModel.TabSize);
+                richEditBox.Document.Selection.SetRange(start, end);
+                richEditBox.Document.Selection.TypeText(new string(' ', numSpaces));
+                e.Handled = true;
+
+            }
+        }
+
         /****************************
          *  Command bar buttons 
          ****************************/
 
-        private void FindButton_Click(object sender, RoutedEventArgs e)
-        {
+        private void OpenFileButton_Click(object sender, RoutedEventArgs e) => OpenAndDisplayFileAsync();
 
-        }
-
-        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenAndDisplayFile();
-        }
-
-        private void AddFileButton_Click(object sender, RoutedEventArgs e)
-        {
-            CreateAndDisplayNewFile();
-        }
+        private void AddFileButton_Click(object sender, RoutedEventArgs e) => CreateAndDisplayNewFile();
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveCurrentBuffer();
+            SaveCurrentBufferAsync();
         }
 
         /************
@@ -90,10 +112,7 @@ namespace UWPCode.Views
 
         }
 
-        private void settingButton_Click(object sender, RoutedEventArgs e)
-        {
-            ViewModel.GotoSettings();
-        }
+        private void settingButton_Click(object sender, RoutedEventArgs e) => ViewModel.GotoSettings();
 
         /****************
          * Search bar controls
@@ -109,26 +128,19 @@ namespace UWPCode.Views
             flyout.FlyoutPresenterStyle = fullWidthFyoutStyle;
         }
 
-        private void searchBoxFlyout_Closed(object sender, object e)
+        private void searchBoxFlyout_Closed(object sender, object e) => ClearHighlights();
+
+        private void searchBoxFlyout_Opened(object sender, object e)
         {
-            ClearHighlights();
+            FindAndHighLightAllOccurrence(findBox.Text);
         }
 
         /*** Find controls **/
-        private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            FindAndHighLightAllOccurrence();
-        }
+        private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) => FindAndHighLightAllOccurrence(sender.Text);
 
-        private void findNextButton_Click(object sender, RoutedEventArgs e)
-        {
-            FindAndHighlightNextOccurrence(findBox.Text);
-        }
+        private void findNextButton_Click(object sender, RoutedEventArgs e) => FindAndHighlightNextOccurrence(findBox.Text);
 
-        private void findPrevButton_Click(object sender, RoutedEventArgs e)
-        {
-            FindAndHighlightPrevOccerrence(findBox.Text);
-        }
+        private void findPrevButton_Click(object sender, RoutedEventArgs e) => FindAndHighlightPrevOccerrence(findBox.Text);
 
         /***Replace Control***/
         private void replaceBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -136,24 +148,15 @@ namespace UWPCode.Views
 
         }
 
-        private void replaceNextButton_Click(object sender, RoutedEventArgs e)
-        {
-            ReplaceNextOccurence(findBox.Text, replaceBox.Text);
-        }
+        private void replaceNextButton_Click(object sender, RoutedEventArgs e) => ReplaceNextOccurence(findBox.Text, replaceBox.Text);
 
-        private void replaceAllButton_Click(object sender, RoutedEventArgs e)
-        {
-            ReplaceAllOccurence(findBox.Text, replaceBox.Text);
-        }
+        private void replaceAllButton_Click(object sender, RoutedEventArgs e) => ReplaceAllOccurence(findBox.Text, replaceBox.Text);
 
         /****************************
          * Helper functions
          * **************************/
 
-        public void UpdateTextArea(string text)
-        {
-            editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
-        }
+        private void UpdateTextArea(string text) => editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
 
         private void DisplayBuffer(Models.Buffer buffer)
         {
@@ -168,7 +171,7 @@ namespace UWPCode.Views
             return text;
         }
 
-        public async void OpenAndDisplayFile()
+        public async void OpenAndDisplayFileAsync()
         {
             var buffer = await ViewModel.ChooseAndOpenFile();
             DisplayBuffer(buffer);
@@ -181,13 +184,25 @@ namespace UWPCode.Views
             return buffer;
         }
 
-        private async Task<StorageFile> SaveCurrentBuffer()
+        private async Task<StorageFile> SaveCurrentBufferAsync()
         {
             var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
             var text = GetEditorText();
             var file = await ViewModel.UpdateAndSaveBuffer(buffer, text);
             DisplayBuffer(buffer);
             return file;
+        }
+
+        private void FindAndHighLightAllOccurrence(string text)
+        {
+            if (text.Length > 0)
+            {
+                var cursorPos = editor.Document.Selection.StartPosition;
+                ClearHighlights();
+                foundPosList = FindAllOccurence(text, 0);
+                HighlightAll(inactiveSelectionColor, foundPosList, text.Length);
+                editor.Document.Selection.SetRange(cursorPos, cursorPos);
+            }
         }
 
         private void HighlightAll(Color highlightColor, List<int> foundIndex, int length)
@@ -214,15 +229,6 @@ namespace UWPCode.Views
             editor.Document.Selection.SetRange(indexInFoundPosList, indexInFoundPosList + length);
             editor.Document.Selection.CharacterFormat.BackgroundColor = highlightColor;
             editor.Document.Selection.ScrollIntoView(Windows.UI.Text.PointOptions.None);
-        }
-
-        private void FindAndHighLightAllOccurrence()
-        {
-            var cursorPos = editor.Document.Selection.StartPosition;
-            ClearHighlights();
-            foundPosList = FindAllOccurence(findBox.Text, 0);
-            HighlightAll(inactiveSelectionColor, foundPosList, findBox.Text.Length);
-            editor.Document.Selection.SetRange(cursorPos, cursorPos);
         }
 
         private List<int> FindAllOccurence(string text, int start)

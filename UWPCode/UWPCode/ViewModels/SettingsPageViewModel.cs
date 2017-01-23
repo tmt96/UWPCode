@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Template10.Mvvm;
 using Template10.Services.SettingsService;
@@ -29,30 +29,6 @@ namespace UWPCode.ViewModels
             }
         }
 
-        public bool ShowHamburgerButton
-        {
-            get { return _settings.ShowHamburgerButton; }
-            set { _settings.ShowHamburgerButton = value; base.RaisePropertyChanged(); }
-        }
-
-        public bool IsFullScreen
-        {
-            get { return _settings.IsFullScreen; }
-            set
-            {
-                _settings.IsFullScreen = value;
-                base.RaisePropertyChanged();
-                if (value)
-                {
-                    ShowHamburgerButton = false;
-                }
-                else
-                {
-                    ShowHamburgerButton = true;
-                }
-            }
-        }
-
         public bool UseShellBackButton
         {
             get { return _settings.UseShellBackButton; }
@@ -65,25 +41,66 @@ namespace UWPCode.ViewModels
             set { _settings.AppTheme = value ? ApplicationTheme.Light : ApplicationTheme.Dark; base.RaisePropertyChanged(); }
         }
 
-        private string _BusyText = "Please wait...";
-        public string BusyText
+        public bool WordWrap
         {
-            get { return _BusyText; }
+            get { return _settings.WordWrap.Equals(TextWrapping.Wrap); }
             set
             {
-                Set(ref _BusyText, value);
-                _ShowBusyCommand.RaiseCanExecuteChanged();
+                _settings.WordWrap = value ? TextWrapping.Wrap : TextWrapping.NoWrap;
+                base.RaisePropertyChanged();
             }
         }
 
-        DelegateCommand _ShowBusyCommand;
-        public DelegateCommand ShowBusyCommand
-            => _ShowBusyCommand ?? (_ShowBusyCommand = new DelegateCommand(async () =>
+        public int EditorFontSize
+        {
+            get { return _settings.EditorFontSize; }
+            set
             {
-                Views.Busy.SetBusy(true, _BusyText);
-                await Task.Delay(5000);
-                Views.Busy.SetBusy(false);
-            }, () => !string.IsNullOrEmpty(BusyText)));
+                _settings.EditorFontSize = value;
+                base.RaisePropertyChanged();
+            }
+        }
+
+        public List<string> FontsList
+        {
+            get
+            {
+                var fontsList = new List<string>(Microsoft.Graphics.Canvas.Text.CanvasTextFormat.GetSystemFontFamilies());
+                fontsList.Sort();
+                return fontsList;
+            }
+        }
+
+        public string EditorFontFamily
+        {
+            get { return _settings.EditorFontFamily; }
+            set
+            {
+                _settings.EditorFontFamily = value;
+                base.RaisePropertyChanged();
+            }
+
+        }
+
+        public int TabSize
+        {
+            get { return _settings.TabSize; }
+            set
+            {
+                _settings.TabSize = value;
+                base.RaisePropertyChanged();
+            }
+        }
+
+        public bool UseSoftTab
+        {
+            get { return _settings.UseSoftTab; }
+            set
+            {
+                _settings.UseSoftTab = value;
+                base.RaisePropertyChanged();
+            }
+        }
     }
 
     public class AboutPartViewModel : ViewModelBase
