@@ -21,7 +21,7 @@ Program GUI
 ![Program GUI](GUI.PNG)
 
 ## 1/11/2017
-Trouble with adding logic to the program. Since my hamburger menu is in a different layer than my mainpage, I cannot easily carry out action from the hamburger menu (add/open file) and have it change the mainpage (editor, etc). One option is to reorganize my hamburger menu & command bar.
+Trouble with adding logic to the program. Since my hamburger menu is in a different layer than my Mainpage, I cannot easily carry out action from the hamburger menu (add/open file) and have it change the Mainpage (editor, etc). One option is to reorganize my hamburger menu & command bar.
 
 The goal today is to have the program successfully open & save a file. Hopefully I could make it.
 
@@ -31,7 +31,7 @@ Finished with open & add file. Working on save and close file.
 ![Open File](OpenFile.png)
 
 ## 1/13/2017
-Happy birthday to me! Got caught in birthday celebration & GRE stuffs for the last two days (ok I got a bit lazy). Anw, the goal now is to move to syntax highlighting part by 1/16, which means that I need to finish save & close files by tomorrow and search/replace by Sunday.
+Happy birthday to me! Got caught in birthday celebration & GRE stuffs for the last two days (ok I got a bit lazy). Anyway, the goal now is to move to syntax highlighting part by 1/16, which means that I need to finish save & close files by tomorrow and search/replace by Sunday.
 
 Search and replace seems to be the difficult one. To highlight result I will need a RichEditBox instead of a TextBox, which is awkward to use (no RichEditBox.Text....). It also means I will need to change a bit of my code. We'll see how that go.
 
@@ -55,6 +55,24 @@ Another period of laziness. I have added the ability to search forward & backwar
 Things to do next:
 - Fix editor appearance
 - Settings
-- Multifile functionality
+- Multi-file functionality
 - Clean code
-- Change text representation into using array of strings to improve performance
+- Change text representation to using array of strings to improve performance
+
+## 1/22/2017
+A good day in the office. The editor now has a consistent background throughout. Settings page is added and functions properly, with option to change font, font size, word wrap, etc... Code has a light clean up and is now easier to follow. This is now a functional Notepad replacement, albeit slow. Next stop: Multiple files functionality.
+
+(Still bummed that I could not do the syntax highlighting. Also realized that I have not taken enough screenshots)
+
+## 1/23/2017
+Think I will have to postpone tabbed interface for now. The reason is that I have trouble in determining the buffer we need to display in the editor when we select new item from the flyout if there are two files having the same name (maybe different path). Without careful handling, we could easily mess up the relation between tab name and file name. Moreover, with the current implementation, reloading an opened file would take a long time.
+
+A better approach would be to create a new custom Page any time we open/create a new file. Basically, the left-hand-side bar serve as a Navigation Shell while the editor & command bar would belong to the custom Page. However, this approach is difficult, requires time & lots of reorganization, maybe even close to a rewrite. For now, let's assume we only open one file at a time.
+
+So wish list:
+- Change data structure to array of strings
+- Programmatically generate custom Page for each buffer- Editor line numbers
+- Syntax highlighting
+
+## 1/23/2017
+Now that I think about it, the custom View approach simply asks for too much effort. Definitely Over-engineer. I will have a second try with the Dictionary approach tomorrow.

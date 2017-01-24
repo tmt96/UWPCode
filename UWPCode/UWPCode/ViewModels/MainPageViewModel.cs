@@ -36,6 +36,27 @@ namespace UWPCode.ViewModels
 
         public bool UseSoftTab => settings.UseSoftTab;
 
+        public HashSet<Models.Buffer> BufferNameList
+        {
+            get
+            {
+                //return (from buffer in ((App)Application.Current).BufferOrganizer.BufferList select buffer.Name).ToList<string>();
+                return ((App)Application.Current).BufferOrganizer.BufferList;
+            }
+        }
+
+        public Models.Buffer SelectedBufferName
+        {
+            get
+            {
+                return ((App)Application.Current).BufferOrganizer.CurrentBuffer;
+            }
+            set
+            {
+
+            }
+        }
+
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
         {
             SettingsChanged(ApplicationData.Current, parameter);
@@ -74,9 +95,16 @@ namespace UWPCode.ViewModels
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
         {
             UpdateBuffer(buffer, text);
+            StorageFile file;
             if (!buffer.IsInFileSystem)
-                buffer.File = await PickSaveFileAsync(buffer);
-            return await buffer.SaveFile();
+            {
+                file = await PickSaveFileAsync(buffer);
+                file = await buffer.SaveFile(file);
+            }
+
+            file = await buffer.SaveFile();
+            RaisePropertyChanged(nameof(BufferNameList));
+            return file;
         }
 
         private async Task<StorageFile> PickSaveFileAsync(Models.Buffer buffer)
@@ -103,6 +131,7 @@ namespace UWPCode.ViewModels
         {
             var file = await PickOpenFileAsync();
             var buffer = await ((App)Application.Current).BufferOrganizer.CreateBufferFromFile(file);
+            RaisePropertyChanged(nameof(BufferNameList));
             return buffer;
         }
 
@@ -130,7 +159,12 @@ namespace UWPCode.ViewModels
             }
         }
 
-        public Models.Buffer CreateNewBuffer() => ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
+        public Models.Buffer CreateNewBuffer()
+        {
+            var buffer = ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
+            RaisePropertyChanged(nameof(BufferNameList));
+            return buffer;
+        }
     }
 }
 

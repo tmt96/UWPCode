@@ -47,11 +47,7 @@ namespace UWPCode.Models
 
         public Buffer CreateBlankBuffer()
         {
-            var buffer = new Buffer
-            {
-                Name = "Document " + (++newBlankBufferCount)
-            };
-            newBlankBufferCount++;
+            var buffer = new Buffer("Document " + (++newBlankBufferCount));
             AddNewBuffer(buffer);
             return buffer;
         }

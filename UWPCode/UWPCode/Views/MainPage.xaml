@@ -199,7 +199,19 @@
                     Name="fileListButton"
                     Click="fileListButton_Click"
                     Content="&#xEC50;"
-                    Style="{StaticResource PanelButton}" />
+                    Style="{StaticResource PanelButton}">
+                    <Button.Flyout>
+                        <Flyout
+                            x:Name="BufferListFlyout"
+                            Opened="BufferListFlyout_Opened"
+                            Placement="Right">
+                            <ListView
+                                Name="BufferListView"
+                                ItemsSource="{Binding BufferNameList, Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedBufferName, Mode=TwoWay}" />
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
 
                 <Button
                     Name="splitViewButton"

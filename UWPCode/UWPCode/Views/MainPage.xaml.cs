@@ -122,10 +122,10 @@ namespace UWPCode.Views
         private void searchBoxFlyout_Opening(object sender, object e)
         {
             Flyout flyout = sender as Flyout;
-            Style fullWidthFyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
-            fullWidthFyoutStyle.Setters.Add(new Setter(MinWidthProperty, mainArea.ActualWidth));
+            Style fullWidthFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            fullWidthFlyoutStyle.Setters.Add(new Setter(MinWidthProperty, mainArea.ActualWidth));
 
-            flyout.FlyoutPresenterStyle = fullWidthFyoutStyle;
+            flyout.FlyoutPresenterStyle = fullWidthFlyoutStyle;
         }
 
         private void searchBoxFlyout_Closed(object sender, object e) => ClearHighlights();
@@ -311,5 +311,14 @@ namespace UWPCode.Views
             }
         }
 
+        private void BufferListFlyout_Opened(object sender, object e)
+        {
+            Flyout flyout = sender as Flyout;
+            Style fullHeightFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            fullHeightFlyoutStyle.Setters.Add(new Setter(MinHeightProperty, mainArea.ActualHeight));
+
+            flyout.FlyoutPresenterStyle = fullHeightFlyoutStyle;
+
+        }
     }
 }

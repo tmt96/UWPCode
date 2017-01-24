@@ -12,91 +12,64 @@ namespace UWPCode.Models
     public class Buffer
     {
         private string name;
-        private string text;
         private bool isSaved;
         private StorageFile file;
 
         public Buffer()
         {
             name = "";
-            text = "";
+            Text = "";
             isSaved = false;
             file = null;
         }
 
+        public Buffer(string name)
+        {
+            this.name = name;
+            Text = "";
+            isSaved = false;
+            file = null;
+        }
 
         public static async Task<Buffer> CreateBufferFromFileAsync(StorageFile file)
         {
             var buffer = new Buffer
             {
-                Name = file.Name,
+                name = file.Name,
                 Text = await FileIO.ReadTextAsync(file),
                 isSaved = true,
             };
             return buffer;
         }
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string Name => IsInFileSystem ? file.Name : name;
 
-        public string Text
-        {
-            get
-            {
-                return text;
-            }
+        public string Text { get; set; }
 
-            set
-            {
-                text = value;
-            }
-        }
+        public bool IsSaved => isSaved;
 
-        public bool IsSaved
-        {
-            get
-            {
-                return isSaved;
-            }
-        }
+        public bool IsInFileSystem => file != null;
 
-        public bool IsInFileSystem
-        {
-            get
-            {
-                return file != null;
-            }
-        }
-
-        public StorageFile File
-        {
-            get
-            {
-                return file;
-            }
-
-            set
-            {
-                file = value;
-            }
-        }
+        public StorageFile File => file;
 
         internal async Task<StorageFile> SaveFile()
         {
             CachedFileManager.DeferUpdates(file);
             name = file.Name;
             isSaved = true;
-            await FileIO.WriteTextAsync(file, text);
+            await FileIO.WriteTextAsync(file, Text);
             var status = await CachedFileManager.CompleteUpdatesAsync(file);
             // TODO: code to notify when cannot save file
             return file;
         }
 
-
+        internal async Task<StorageFile> SaveFile(StorageFile file)
+        {
+            this.file = file;
+            return await SaveFile();
+        }
     }
+
 
     class BufferComparer : EqualityComparer<Buffer>
     {
