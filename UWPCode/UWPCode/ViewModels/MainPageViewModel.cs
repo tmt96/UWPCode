@@ -17,6 +17,7 @@ namespace UWPCode.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         SettingsService settings;
+        string selectedBufferName;
 
         public MainPageViewModel()
         {
@@ -36,25 +37,36 @@ namespace UWPCode.ViewModels
 
         public bool UseSoftTab => settings.UseSoftTab;
 
-        public HashSet<Models.Buffer> BufferNameList
+        public string DocumentName => ((App)Application.Current).BufferOrganizer.CurrentBuffer.Name;
+
+        public List<string> BufferNameList
         {
             get
             {
-                //return (from buffer in ((App)Application.Current).BufferOrganizer.BufferList select buffer.Name).ToList<string>();
-                return ((App)Application.Current).BufferOrganizer.BufferList;
+                return ((App)Application.Current).BufferOrganizer.BufferDictionary.Keys.ToList<string>();
             }
         }
 
-        public Models.Buffer SelectedBufferName
+        internal void SetCurrentBufferUnsaved()
         {
-            get
-            {
-                return ((App)Application.Current).BufferOrganizer.CurrentBuffer;
-            }
+            ((App)Application.Current).BufferOrganizer.CurrentBuffer.IsSaved = false;
+        }
+
+        public string SelectedBufferName
+        {
+            get { return selectedBufferName; }
             set
             {
-
+                SwitchCurrentBuffer(value);
             }
+        }
+
+        private void SwitchCurrentBuffer(string key)
+        {
+            var buffer = ((App)Application.Current).BufferOrganizer.SwitchCurrentBuffer(key);
+            if (buffer != null)
+                selectedBufferName = key;
+            RaisePropertyChanged(SelectedBufferName);
         }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
@@ -87,9 +99,7 @@ namespace UWPCode.ViewModels
 
         private void SettingsChanged(Windows.Storage.ApplicationData sender, object args)
         {
-            RaisePropertyChanged(nameof(WordWrap));
-            RaisePropertyChanged(nameof(FontSize));
-            RaisePropertyChanged(nameof(FontFamily));
+            RaisePropertyChanged();
         }
 
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
@@ -131,7 +141,7 @@ namespace UWPCode.ViewModels
         {
             var file = await PickOpenFileAsync();
             var buffer = await ((App)Application.Current).BufferOrganizer.CreateBufferFromFile(file);
-            RaisePropertyChanged(nameof(BufferNameList));
+            RaisePropertyChanged();
             return buffer;
         }
 
@@ -162,7 +172,7 @@ namespace UWPCode.ViewModels
         public Models.Buffer CreateNewBuffer()
         {
             var buffer = ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
-            RaisePropertyChanged(nameof(BufferNameList));
+            RaisePropertyChanged();
             return buffer;
         }
     }

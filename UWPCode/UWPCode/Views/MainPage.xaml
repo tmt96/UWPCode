@@ -39,10 +39,8 @@
         <Style x:Key="SearchSuggestBox" TargetType="AutoSuggestBox">
             <Setter Property="Margin" Value="5" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="Background" Value="#E0000000" />
-            <Setter Property="Foreground" Value="WhiteSmoke" />
-            <Setter Property="FontFamily" Value="Consolas" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontFamily" Value="{Binding FontFamily}" />
+            <Setter Property="FontSize" Value="{Binding FontSize}" />
         </Style>
 
         <Style x:Key="CodeEditorStyle" TargetType="RichEditBox">
@@ -208,7 +206,9 @@
                             <ListView
                                 Name="BufferListView"
                                 ItemsSource="{Binding BufferNameList, Mode=TwoWay}"
-                                SelectedItem="{Binding SelectedBufferName, Mode=TwoWay}" />
+                                SelectedItem="{Binding SelectedBufferName, Mode=TwoWay}"
+                                SelectionChanged="BufferListView_SelectionChanged"
+                                SelectionMode="Single" />
                         </Flyout>
                     </Button.Flyout>
                 </Button>
@@ -275,7 +275,7 @@
                 Grid.Row="1"
                 VerticalContentAlignment="Center"
                 FontSize="16"
-                Text="Document 1">
+                Text="{Binding SelectedBufferName, Mode=TwoWay}">
 
                 <controls:PageHeader.PrimaryCommands>
                     <AppBarButton

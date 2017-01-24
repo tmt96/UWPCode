@@ -32,7 +32,7 @@ namespace UWPCode.Views
 
         private void editor_TextChanged(object sender, RoutedEventArgs e)
         {
-
+            ViewModel.SetCurrentBufferUnsaved();
         }
 
         private void editor_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -156,12 +156,10 @@ namespace UWPCode.Views
          * Helper functions
          * **************************/
 
-        private void UpdateTextArea(string text) => editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, text);
-
         private void DisplayBuffer(Models.Buffer buffer)
         {
             editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
-            pageHeader.Text = buffer.Name;
+            //pageHeader.Text = buffer.Name;
         }
 
         private string GetEditorText()
@@ -174,14 +172,13 @@ namespace UWPCode.Views
         public async void OpenAndDisplayFileAsync()
         {
             var buffer = await ViewModel.ChooseAndOpenFile();
-            DisplayBuffer(buffer);
+            if (buffer != null) DisplayBuffer(buffer);
         }
 
-        private Models.Buffer CreateAndDisplayNewFile()
+        private void CreateAndDisplayNewFile()
         {
             var buffer = ViewModel.CreateNewBuffer();
-            DisplayBuffer(buffer);
-            return buffer;
+            if (buffer != null) DisplayBuffer(buffer);
         }
 
         private async Task<StorageFile> SaveCurrentBufferAsync()
@@ -319,6 +316,11 @@ namespace UWPCode.Views
 
             flyout.FlyoutPresenterStyle = fullHeightFlyoutStyle;
 
+        }
+
+        private void BufferListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            DisplayBuffer(((App)Application.Current).BufferOrganizer.CurrentBuffer);
         }
     }
 }
