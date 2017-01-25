@@ -96,7 +96,11 @@ namespace UWPCode.ViewModels
 
         private void SettingsChanged(Windows.Storage.ApplicationData sender, object args)
         {
-            RaisePropertyChanged();
+            RaisePropertyChanged(nameof(WordWrap));
+            RaisePropertyChanged(nameof(FontFamily));
+            RaisePropertyChanged(nameof(FontSize));
+            RaisePropertyChanged(nameof(UseSoftTab));
+            RaisePropertyChanged(nameof(TabSize));
         }
 
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)

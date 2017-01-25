@@ -29,6 +29,9 @@ The goal today is to have the program successfully open & save a file. Hopefully
 Finished with open & add file. Working on save and close file.
 
 ![Open File](OpenFile.png)
+Open an existing file.
+![Display File](DisplayFile.png)
+The editor display the file
 
 ## 1/13/2017
 Happy birthday to me! Got caught in birthday celebration & GRE stuffs for the last two days (ok I got a bit lazy). Anyway, the goal now is to move to syntax highlighting part by 1/16, which means that I need to finish save & close files by tomorrow and search/replace by Sunday.
@@ -37,6 +40,9 @@ Search and replace seems to be the difficult one. To highlight result I will nee
 
 ## 1/14/2017
 Finished with save files. Close file is possible, but I haven't created a GUI for the task
+
+![Save File](SaveFile.png)
+Saving a file
 
 ## 1/15/2017
 Troubles with highlighting search result although searching works (not that it is difficult). Need to solve the problem before moving to syntax highlighting: if I cannot conditionally change the text format, then I can't change do any syntax highlight.
@@ -59,10 +65,22 @@ Things to do next:
 - Clean code
 - Change text representation to using array of strings to improve performance
 
+![Search](Search.png)
+![Replace](Replace.png)
+Search & Replace functions in action
+
 ## 1/22/2017
 A good day in the office. The editor now has a consistent background throughout. Settings page is added and functions properly, with option to change font, font size, word wrap, etc... Code has a light clean up and is now easier to follow. This is now a functional Notepad replacement, albeit slow. Next stop: Multiple files functionality.
 
-(Still bummed that I could not do the syntax highlighting. Also realized that I have not taken enough screenshots)
+(Still bummed that I could not do the syntax highlighting. Also realized that I have not taken enough screenshots, so here we go!)
+
+![Settings](SettingsPage.png)
+Settings page
+![Light Theme](LightTheme.png)
+![No Word Wrap](NoWordWrap.png)
+![Changing Font](FontChange.png)
+Different appearance from changing settings
+
 
 ## 1/23/2017
 Think I will have to postpone tabbed interface for now. The reason is that I have trouble in determining the buffer we need to display in the editor when we select new item from the flyout if there are two files having the same name (maybe different path). Without careful handling, we could easily mess up the relation between tab name and file name. Moreover, with the current implementation, reloading an opened file would take a long time.
@@ -81,3 +99,6 @@ Now that I think about it, the custom View approach simply asks for too much eff
 Positive: The opened file sidebar now works and shows all opened files correctly. Code is incredibly ugly and messy, but hey it works!
 
 Negative: I tried to be too smart, pulling off the StorageFile property from Buffer and using a path instead to reduce memory load. The problem: UWP apps do not have the access to all files in the system, especially those chosen from FilePicker. As a result, saving old Buffers is now broken. ~~Looking to fix.~~ Fixed that.
+
+![Side Bar](OpenFileBar.png)
+Side panel displaying opened files.
