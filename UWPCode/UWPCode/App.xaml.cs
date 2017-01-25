@@ -40,13 +40,7 @@ namespace UWPCode
             #endregion
         }
 
-        internal BufferOrganizer BufferOrganizer
-        {
-            get
-            {
-                return bufferOrganizer;
-            }
-        }
+        internal BufferOrganizer BufferOrganizer => bufferOrganizer;
 
         //public override UIElement CreateRootElement(IActivatedEventArgs e)
         //{

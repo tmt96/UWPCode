@@ -100,5 +100,20 @@ namespace UWPCode.Models
                 dictionary.Add(newKey, value);
             }
         }
+
+        internal async Task<StorageFile> SaveBufferToFile(Buffer buffer, StorageFile file)
+        {
+            var oldKey = (BufferDictionary.ContainsKey(buffer.Path)) ? buffer.Path : buffer.Name;
+            file = await buffer.SaveFile(file);
+            var newKey = (IsInDictionary(file) == IsInBufferDictionary.NoSimilarName) ? buffer.Name : buffer.Path;
+            ChangeKey(BufferDictionary, oldKey, newKey);
+            return file;
+        }
+
+        internal async Task<StorageFile> SaveBufferToFile(Buffer buffer)
+        {
+            var file = await buffer.SaveFile();
+            return file;
+        }
     }
 }

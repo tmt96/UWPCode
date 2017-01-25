@@ -44,7 +44,8 @@ namespace UWPCode.Models
         internal async Task<StorageFile> SaveFile()
         {
             var file = await StorageFile.GetFileFromPathAsync(Path);
-            return await SaveFile(file);
+            if (file != null) return await SaveFile(file);
+            return file;
         }
 
         internal async Task<StorageFile> SaveFile(StorageFile file)

@@ -13,7 +13,6 @@ namespace UWPCode.Views
     public sealed partial class MainPage : Page
     {
         private List<int> foundPosList = new List<int>();
-        private int indexInFoundPosList = -1;
         Color activeSelectionColor = Colors.LightBlue;
         Color inactiveSelectionColor = Colors.LightGray;
 
@@ -30,14 +29,11 @@ namespace UWPCode.Views
          * This allows maximal distinction btw UI and functionality
          * ************************************/
 
-        private void editor_TextChanged(object sender, RoutedEventArgs e)
-        {
-            ViewModel.SetCurrentBufferUnsaved();
-        }
+        private void editor_TextChanged(object sender, RoutedEventArgs e) => ViewModel.SetCurrentBufferUnsaved();
 
         private void editor_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            RichEditBox richEditBox = sender as RichEditBox;
+            var richEditBox = sender as RichEditBox;
             if (richEditBox != null)
             {
                 switch (e.Key)
@@ -58,11 +54,11 @@ namespace UWPCode.Views
                 e.Handled = true;
             } else
             {
-                int start = richEditBox.Document.Selection.StartPosition;
-                int end = richEditBox.Document.Selection.EndPosition;
+                var start = richEditBox.Document.Selection.StartPosition;
+                var end = richEditBox.Document.Selection.EndPosition;
                 richEditBox.Document.Selection.HomeKey(Windows.UI.Text.TextRangeUnit.Line, false);
-                int lineBeginPos = richEditBox.Document.Selection.StartPosition;
-                int numSpaces = ViewModel.TabSize - ((start - lineBeginPos) % ViewModel.TabSize);
+                var lineBeginPos = richEditBox.Document.Selection.StartPosition;
+                var numSpaces = ViewModel.TabSize - ((start - lineBeginPos) % ViewModel.TabSize);
                 richEditBox.Document.Selection.SetRange(start, end);
                 richEditBox.Document.Selection.TypeText(new string(' ', numSpaces));
                 e.Handled = true;
@@ -74,14 +70,11 @@ namespace UWPCode.Views
          *  Command bar buttons 
          ****************************/
 
-        private void OpenFileButton_Click(object sender, RoutedEventArgs e) => OpenAndDisplayFileAsync();
+        private async void OpenFileButton_Click(object sender, RoutedEventArgs e) => await OpenAndDisplayFileAsync();
 
         private void AddFileButton_Click(object sender, RoutedEventArgs e) => CreateAndDisplayNewFile();
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveCurrentBufferAsync();
-        }
+        private async void SaveButton_Click(object sender, RoutedEventArgs e) => await SaveCurrentBufferAsync();
 
         /************
          * menu bar button
@@ -130,10 +123,7 @@ namespace UWPCode.Views
 
         private void searchBoxFlyout_Closed(object sender, object e) => ClearHighlights();
 
-        private void searchBoxFlyout_Opened(object sender, object e)
-        {
-            FindAndHighLightAllOccurrence(findBox.Text);
-        }
+        private void searchBoxFlyout_Opened(object sender, object e) => FindAndHighLightAllOccurrence(findBox.Text);
 
         /*** Find controls **/
         private void findBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) => FindAndHighLightAllOccurrence(sender.Text);
@@ -159,17 +149,20 @@ namespace UWPCode.Views
         private void DisplayBuffer(Models.Buffer buffer)
         {
             editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
-            //pageHeader.Text = buffer.Name;
+            pageHeader.Text = buffer.Name;
         }
 
-        private string GetEditorText()
+        private string EditorText
         {
-            string text;
-            editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
-            return text;
+            get
+            {
+                string text;
+                editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
+                return text;
+            }
         }
 
-        public async void OpenAndDisplayFileAsync()
+        private async Task OpenAndDisplayFileAsync()
         {
             var buffer = await ViewModel.ChooseAndOpenFile();
             if (buffer != null) DisplayBuffer(buffer);
@@ -184,7 +177,7 @@ namespace UWPCode.Views
         private async Task<StorageFile> SaveCurrentBufferAsync()
         {
             var buffer = ((App)Application.Current).BufferOrganizer.CurrentBuffer;
-            var text = GetEditorText();
+            var text = EditorText;
             var file = await ViewModel.UpdateAndSaveBuffer(buffer, text);
             DisplayBuffer(buffer);
             return file;
@@ -214,8 +207,8 @@ namespace UWPCode.Views
         private void ClearHighlights()
         {
             var cursorPos = editor.Document.Selection.StartPosition;
-            string text = GetEditorText();
-            int end = text.Length;
+            var text = EditorText;
+            var end = text.Length;
             editor.Document.Selection.SetRange(0, end);
             editor.Document.Selection.CharacterFormat.BackgroundColor = (editor.Background as Windows.UI.Xaml.Media.SolidColorBrush).Color;
             editor.Document.Selection.SetRange(cursorPos, cursorPos);
@@ -231,10 +224,9 @@ namespace UWPCode.Views
         private List<int> FindAllOccurence(string text, int start)
         {
             var found = new List<int>();
-            indexInFoundPosList = -1;
             if (text.Length <= 0) return found;
 
-            string editorText = GetEditorText();
+            string editorText = EditorText;
             int pos = editorText.IndexOf(text);
             while (pos > -1)
             {
@@ -257,8 +249,8 @@ namespace UWPCode.Views
 
             if (foundPosList == null || foundPosList.Count == 0) return -1;
 
-            int selectionEnd = editor.Document.Selection.EndPosition;
-            int nextOccurrenceIndex = foundPosList.BinarySearch(selectionEnd);
+            var selectionEnd = editor.Document.Selection.EndPosition;
+            var nextOccurrenceIndex = foundPosList.BinarySearch(selectionEnd);
             if (nextOccurrenceIndex < 0) nextOccurrenceIndex = ~ nextOccurrenceIndex;
             if (nextOccurrenceIndex >= foundPosList.Count) nextOccurrenceIndex = 0;
 
@@ -274,8 +266,8 @@ namespace UWPCode.Views
 
             if (foundPosList == null || foundPosList.Count == 0) return -1;
 
-            int selectionStart = editor.Document.Selection.StartPosition;
-            int prevOccurrenceIndex = foundPosList.BinarySearch(selectionStart);
+            var selectionStart = editor.Document.Selection.StartPosition;
+            var prevOccurrenceIndex = foundPosList.BinarySearch(selectionStart);
             if (prevOccurrenceIndex < 0) prevOccurrenceIndex = ~prevOccurrenceIndex;
             prevOccurrenceIndex -= 1;
             if (prevOccurrenceIndex < 0) prevOccurrenceIndex = foundPosList.Count - 1;
@@ -286,7 +278,7 @@ namespace UWPCode.Views
 
         private int ReplaceNextOccurence(string originalWord, string replacementWord)
         {
-            int pos = FindAndHighlightNextOccurrence(originalWord);
+            var pos = FindAndHighlightNextOccurrence(originalWord);
             if (pos > -1)
             {
                 foundPosList.Remove(pos);
@@ -310,17 +302,18 @@ namespace UWPCode.Views
 
         private void BufferListFlyout_Opened(object sender, object e)
         {
-            Flyout flyout = sender as Flyout;
-            Style fullHeightFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            var flyout = sender as Flyout;
+            var fullHeightFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
             fullHeightFlyoutStyle.Setters.Add(new Setter(MinHeightProperty, mainArea.ActualHeight));
 
             flyout.FlyoutPresenterStyle = fullHeightFlyoutStyle;
-
         }
 
         private void BufferListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            DisplayBuffer(((App)Application.Current).BufferOrganizer.CurrentBuffer);
+            ViewModel.UpdateOldBuffer(EditorText);
+            ViewModel.SwitchCurrentBuffer((sender as ListView).SelectedItem as string);
+            DisplayBuffer(ViewModel.BufferOrganizer.CurrentBuffer);
         }
     }
 }

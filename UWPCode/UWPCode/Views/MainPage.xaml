@@ -274,8 +274,7 @@
                 x:Name="pageHeader"
                 Grid.Row="1"
                 VerticalContentAlignment="Center"
-                FontSize="16"
-                Text="{Binding SelectedBufferName, Mode=TwoWay}">
+                FontSize="16">
 
                 <controls:PageHeader.PrimaryCommands>
                     <AppBarButton

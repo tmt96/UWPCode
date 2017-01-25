@@ -17,11 +17,12 @@ namespace UWPCode.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         SettingsService settings;
-        string selectedBufferName;
+        internal BufferOrganizer BufferOrganizer => ((App)Application.Current).BufferOrganizer;
 
         public MainPageViewModel()
         {
             settings = SettingsService.Instance;
+
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
             }
@@ -37,35 +38,31 @@ namespace UWPCode.ViewModels
 
         public bool UseSoftTab => settings.UseSoftTab;
 
-        public string DocumentName => ((App)Application.Current).BufferOrganizer.CurrentBuffer.Name;
+        public string DocumentName => BufferOrganizer.CurrentBuffer.Name;
 
         public List<string> BufferNameList
         {
             get
             {
-                return ((App)Application.Current).BufferOrganizer.BufferDictionary.Keys.ToList<string>();
+                return BufferOrganizer.BufferDictionary.Keys.ToList<string>();
             }
         }
 
         internal void SetCurrentBufferUnsaved()
         {
-            ((App)Application.Current).BufferOrganizer.CurrentBuffer.IsSaved = false;
+            BufferOrganizer.CurrentBuffer.IsSaved = false;
         }
 
         public string SelectedBufferName
         {
-            get { return selectedBufferName; }
-            set
-            {
-                SwitchCurrentBuffer(value);
-            }
+            get; set;
         }
 
-        private void SwitchCurrentBuffer(string key)
+        internal void SwitchCurrentBuffer(string key)
         {
-            var buffer = ((App)Application.Current).BufferOrganizer.SwitchCurrentBuffer(key);
+            var buffer = BufferOrganizer.SwitchCurrentBuffer(key);
             if (buffer != null)
-                selectedBufferName = key;
+                SelectedBufferName = key;
             RaisePropertyChanged(SelectedBufferName);
         }
 
@@ -109,19 +106,20 @@ namespace UWPCode.ViewModels
             if (!buffer.IsInFileSystem)
             {
                 file = await PickSaveFileAsync(buffer);
-                file = await buffer.SaveFile(file);
+                file = await BufferOrganizer.SaveBufferToFile(buffer, file);
             }
 
-            file = await buffer.SaveFile();
-            RaisePropertyChanged(nameof(BufferNameList));
+            file = await BufferOrganizer.SaveBufferToFile(buffer);
+            RaisePropertyChanged();
             return file;
         }
 
         private async Task<StorageFile> PickSaveFileAsync(Models.Buffer buffer)
         {
-            var fileSavePicker = new Windows.Storage.Pickers.FileSavePicker();
-            fileSavePicker.SuggestedStartLocation =
-                Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            var fileSavePicker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
+            };
             fileSavePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
             fileSavePicker.SuggestedFileName = buffer.Name;
 
@@ -129,7 +127,7 @@ namespace UWPCode.ViewModels
             var file = await fileSavePicker.PickSaveFileAsync();
             if (file == null)
             {
-                MessageDialog dialog = new MessageDialog("Cannot save file. Please retry!!");
+                var dialog = new MessageDialog("Cannot save file. Please retry!!");
                 await dialog.ShowAsync();
             }
             return file;
@@ -140,7 +138,7 @@ namespace UWPCode.ViewModels
         public async Task<Models.Buffer> ChooseAndOpenFile()
         {
             var file = await PickOpenFileAsync();
-            var buffer = await ((App)Application.Current).BufferOrganizer.CreateBufferFromFile(file);
+            var buffer = await BufferOrganizer.CreateBufferFromFile(file);
             RaisePropertyChanged();
             return buffer;
         }
@@ -155,7 +153,7 @@ namespace UWPCode.ViewModels
             picker.FileTypeFilter.Add("*");
 
             // TODO: Actually handle the case in which we cannot open file
-            StorageFile file = await picker.PickSingleFileAsync();
+            var file = await picker.PickSingleFileAsync();
             if (file != null)
             {
                 // Application now has read/write access to the picked file
@@ -163,7 +161,7 @@ namespace UWPCode.ViewModels
             }
             else
             {
-                MessageDialog dialog = new MessageDialog("File doesn't exist");
+                var dialog = new MessageDialog("File doesn't exist");
                 await dialog.ShowAsync();
                 return null;
             }
@@ -171,9 +169,14 @@ namespace UWPCode.ViewModels
 
         public Models.Buffer CreateNewBuffer()
         {
-            var buffer = ((App)Application.Current).BufferOrganizer.CreateBlankBuffer();
+            var buffer = BufferOrganizer.CreateBlankBuffer();
             RaisePropertyChanged();
             return buffer;
+        }
+
+        internal void UpdateOldBuffer(string editorText)
+        {
+            UpdateBuffer(BufferOrganizer.CurrentBuffer, editorText);
         }
     }
 }
