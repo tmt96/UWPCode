@@ -29,6 +29,16 @@ namespace UWPCode.Views
          * This allows maximal distinction btw UI and functionality
          * ************************************/
 
+        private string EditorText
+        {
+            get
+            {
+                string text;
+                editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
+                return text;
+            }
+        }
+
         private void editor_TextChanged(object sender, RoutedEventArgs e) => ViewModel.SetCurrentBufferUnsaved();
 
         private void editor_KeyDown(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
@@ -142,24 +152,39 @@ namespace UWPCode.Views
 
         private void replaceAllButton_Click(object sender, RoutedEventArgs e) => ReplaceAllOccurence(findBox.Text, replaceBox.Text);
 
+        /*****************
+         * Buffer List Controls
+         * ******************/
+
+        private void BufferListFlyout_Opening(object sender, object e)
+        {
+            var flyout = sender as Flyout;
+            var fullHeightFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
+            fullHeightFlyoutStyle.Setters.Add(new Setter(MinHeightProperty, mainArea.ActualHeight));
+
+            flyout.FlyoutPresenterStyle = fullHeightFlyoutStyle;
+        }
+
+        private void BufferListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SwitchToNewBuffer((sender as ListView).SelectedItem as string);
+        }   
+        
         /****************************
          * Helper functions
          * **************************/
+
+        private void SwitchToNewBuffer(string newKey)
+        {
+            ViewModel.UpdateOldBuffer(EditorText);
+            ViewModel.SwitchCurrentBuffer(newKey);
+            DisplayBuffer(ViewModel.BufferOrganizer.CurrentBuffer);
+        }
 
         private void DisplayBuffer(Models.Buffer buffer)
         {
             editor.Document.SetText(Windows.UI.Text.TextSetOptions.None, buffer.Text);
             pageHeader.Text = buffer.Name;
-        }
-
-        private string EditorText
-        {
-            get
-            {
-                string text;
-                editor.Document.GetText(Windows.UI.Text.TextGetOptions.None, out text);
-                return text;
-            }
         }
 
         private async Task OpenAndDisplayFileAsync()
@@ -300,20 +325,5 @@ namespace UWPCode.Views
             }
         }
 
-        private void BufferListFlyout_Opened(object sender, object e)
-        {
-            var flyout = sender as Flyout;
-            var fullHeightFlyoutStyle = new Style { TargetType = typeof(FlyoutPresenter) };
-            fullHeightFlyoutStyle.Setters.Add(new Setter(MinHeightProperty, mainArea.ActualHeight));
-
-            flyout.FlyoutPresenterStyle = fullHeightFlyoutStyle;
-        }
-
-        private void BufferListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ViewModel.UpdateOldBuffer(EditorText);
-            ViewModel.SwitchCurrentBuffer((sender as ListView).SelectedItem as string);
-            DisplayBuffer(ViewModel.BufferOrganizer.CurrentBuffer);
-        }
     }
 }

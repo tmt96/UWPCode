@@ -41,7 +41,6 @@ namespace UWPCode.Models
             return buffer;
         }
 
-
         internal async Task<StorageFile> SaveFile()
         {
             CachedFileManager.DeferUpdates(File);

@@ -48,22 +48,9 @@ namespace UWPCode.ViewModels
             }
         }
 
-        internal void SetCurrentBufferUnsaved()
-        {
-            BufferOrganizer.CurrentBuffer.IsSaved = false;
-        }
-
         public string SelectedBufferName
         {
             get; set;
-        }
-
-        internal void SwitchCurrentBuffer(string key)
-        {
-            var buffer = BufferOrganizer.SwitchCurrentBuffer(key);
-            if (buffer != null)
-                SelectedBufferName = key;
-            RaisePropertyChanged(SelectedBufferName);
         }
 
         public override async Task OnNavigatedToAsync(object parameter, NavigationMode mode, IDictionary<string, object> suspensionState)
@@ -85,6 +72,15 @@ namespace UWPCode.ViewModels
             await Task.CompletedTask;
         }
 
+        private void SettingsChanged(Windows.Storage.ApplicationData sender, object args)
+        {
+            RaisePropertyChanged(nameof(WordWrap));
+            RaisePropertyChanged(nameof(FontFamily));
+            RaisePropertyChanged(nameof(FontSize));
+            RaisePropertyChanged(nameof(UseSoftTab));
+            RaisePropertyChanged(nameof(TabSize));
+        }
+
         public void GotoSettings() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 0);
 
@@ -94,13 +90,19 @@ namespace UWPCode.ViewModels
         public void GotoAbout() =>
             NavigationService.Navigate(typeof(Views.SettingsPage), 2);
 
-        private void SettingsChanged(Windows.Storage.ApplicationData sender, object args)
+        public async Task<Models.Buffer> ChooseAndOpenFile()
         {
-            RaisePropertyChanged(nameof(WordWrap));
-            RaisePropertyChanged(nameof(FontFamily));
-            RaisePropertyChanged(nameof(FontSize));
-            RaisePropertyChanged(nameof(UseSoftTab));
-            RaisePropertyChanged(nameof(TabSize));
+            var file = await PickOpenFileAsync();
+            var buffer = await BufferOrganizer.CreateBufferFromFile(file);
+            RaisePropertyChanged();
+            return buffer;
+        }
+
+        public Models.Buffer CreateNewBuffer()
+        {
+            var buffer = BufferOrganizer.CreateBlankBuffer();
+            RaisePropertyChanged();
+            return buffer;
         }
 
         internal async Task<StorageFile> UpdateAndSaveBuffer(Models.Buffer buffer, string text)
@@ -118,33 +120,17 @@ namespace UWPCode.ViewModels
             return file;
         }
 
-        private async Task<StorageFile> PickSaveFileAsync(Models.Buffer buffer)
+        internal void SwitchCurrentBuffer(string key)
         {
-            var fileSavePicker = new Windows.Storage.Pickers.FileSavePicker
-            {
-                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
-            };
-            fileSavePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
-            fileSavePicker.SuggestedFileName = buffer.Name;
-
-            // TODO: actually handle the case in which the file saving fail
-            var file = await fileSavePicker.PickSaveFileAsync();
-            if (file == null)
-            {
-                var dialog = new MessageDialog("Cannot save file. Please retry!!");
-                await dialog.ShowAsync();
-            }
-            return file;
+            var buffer = BufferOrganizer.SwitchCurrentBuffer(key);
+            if (buffer != null)
+                SelectedBufferName = key;
+            RaisePropertyChanged(SelectedBufferName);
         }
 
-        private void UpdateBuffer(Models.Buffer buffer, string text) => buffer.Text = text;
-
-        public async Task<Models.Buffer> ChooseAndOpenFile()
+        internal void SetCurrentBufferUnsaved()
         {
-            var file = await PickOpenFileAsync();
-            var buffer = await BufferOrganizer.CreateBufferFromFile(file);
-            RaisePropertyChanged();
-            return buffer;
+            BufferOrganizer.CurrentBuffer.IsSaved = false;
         }
 
         private async Task<StorageFile> PickOpenFileAsync()
@@ -171,17 +157,32 @@ namespace UWPCode.ViewModels
             }
         }
 
-        public Models.Buffer CreateNewBuffer()
+        private async Task<StorageFile> PickSaveFileAsync(Models.Buffer buffer)
         {
-            var buffer = BufferOrganizer.CreateBlankBuffer();
-            RaisePropertyChanged();
-            return buffer;
+            var fileSavePicker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary
+            };
+            fileSavePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            fileSavePicker.SuggestedFileName = buffer.Name;
+
+            // TODO: actually handle the case in which the file saving fail
+            var file = await fileSavePicker.PickSaveFileAsync();
+            if (file == null)
+            {
+                var dialog = new MessageDialog("Cannot save file. Please retry!!");
+                await dialog.ShowAsync();
+            }
+            return file;
         }
+
+        private void UpdateBuffer(Models.Buffer buffer, string text) => buffer.Text = text;
 
         internal void UpdateOldBuffer(string editorText)
         {
             UpdateBuffer(BufferOrganizer.CurrentBuffer, editorText);
         }
+
     }
 }
 
