@@ -18,16 +18,17 @@ namespace UWPCode.Models
 
         public bool IsSaved { get; set; }
 
-        public bool IsInFileSystem { get; private set; }
+        public bool IsInFileSystem => File != null;
 
-        public string Path { get; private set; }
+        public string Path => File != null ? File.Path : "";
+
+        protected StorageFile File { get; set; }
 
         public Buffer(string name = "")
         {
             Name = name;
             Text = "";
             IsSaved = false;
-            Path = "";
         }
 
         public static async Task<Buffer> CreateBufferFromFileAsync(StorageFile file)
@@ -43,50 +44,46 @@ namespace UWPCode.Models
 
         internal async Task<StorageFile> SaveFile()
         {
-            var file = await StorageFile.GetFileFromPathAsync(Path);
-            if (file != null) return await SaveFile(file);
-            return file;
+            CachedFileManager.DeferUpdates(File);
+            await FileIO.WriteTextAsync(File, Text);
+            var status = await CachedFileManager.CompleteUpdatesAsync(File);
+            // TODO: code to notify when cannot save file
+            UpdateBuffer(File);
+            return File;
         }
 
         internal async Task<StorageFile> SaveFile(StorageFile file)
         {
-            CachedFileManager.DeferUpdates(file);
-            await FileIO.WriteTextAsync(file, Text);
-            var status = await CachedFileManager.CompleteUpdatesAsync(file);
-            // TODO: code to notify when cannot save file
-            UpdateBuffer(file);
-            return file;
+            File = file;
+            return await SaveFile();
         }
 
         private void UpdateBuffer(StorageFile file)
         {
-            Name = file.Name;
-            Path = file.Path;
+            File = file;
             IsSaved = true;
-            IsInFileSystem = true;
+            Name = File.Name;
         }
-    }
-
-
-    class BufferComparer : EqualityComparer<Buffer>
-    {
-        public override bool Equals(Buffer x, Buffer y)
+        class BufferComparer : EqualityComparer<Buffer>
         {
-            if (x.IsInFileSystem && y.IsInFileSystem)
-                return x.Path.Equals(y.Path);
-            else if (x.IsInFileSystem || y.IsInFileSystem)
-                return false;
-            else if (!x.Name.Equals(y.Name) || !x.Text.Equals(y.Text))
-                return false;
-            else return EqualityComparer<Buffer>.Default.Equals(x, y);
-        }
+            public override bool Equals(Buffer x, Buffer y)
+            {
+                if (x.IsInFileSystem && y.IsInFileSystem)
+                    return x.File.Equals(y.File);
+                else if (x.IsInFileSystem || y.IsInFileSystem)
+                    return false;
+                else if (!x.Name.Equals(y.Name) || !x.Text.Equals(y.Text))
+                    return false;
+                else return EqualityComparer<Buffer>.Default.Equals(x, y);
+            }
 
-        public override int GetHashCode(Buffer obj)
-        {
-            if (obj.IsInFileSystem)
-                return EqualityComparer<StorageFile>.Default.GetHashCode();
-            else
-                return EqualityComparer<Buffer>.Default.GetHashCode();
+            public override int GetHashCode(Buffer obj)
+            {
+                if (obj.IsInFileSystem)
+                    return EqualityComparer<StorageFile>.Default.GetHashCode();
+                else
+                    return Default.GetHashCode();
+            }
         }
     }
 }

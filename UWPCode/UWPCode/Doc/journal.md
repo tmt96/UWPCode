@@ -76,3 +76,8 @@ So wish list:
 
 ## 1/23/2017
 Now that I think about it, the custom View approach simply asks for too much effort. Definitely Over-engineer. I will have a second try with the Dictionary approach tomorrow.
+
+## 1/24/2017
+Positive: The opened file sidebar now works and shows all opened files correctly. Code is incredibly ugly and messy, but hey it works!
+
+Negative: I tried to be too smart, pulling off the StorageFile property from Buffer and using a path instead to reduce memory load. The problem: UWP apps do not have the access to all files in the system, especially those chosen from FilePicker. As a result, saving old Buffers is now broken. ~~Looking to fix.~~ Fixed that.
