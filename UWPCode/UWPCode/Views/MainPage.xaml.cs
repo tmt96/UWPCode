@@ -56,26 +56,6 @@ namespace UWPCode.Views
 
         }
 
-        private void EnterTabKey(RichEditBox richEditBox, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-            if (!ViewModel.UseSoftTab)
-            {
-                richEditBox.Document.Selection.TypeText("\t");
-                e.Handled = true;
-            } else
-            {
-                var start = richEditBox.Document.Selection.StartPosition;
-                var end = richEditBox.Document.Selection.EndPosition;
-                richEditBox.Document.Selection.HomeKey(Windows.UI.Text.TextRangeUnit.Line, false);
-                var lineBeginPos = richEditBox.Document.Selection.StartPosition;
-                var numSpaces = ViewModel.TabSize - ((start - lineBeginPos) % ViewModel.TabSize);
-                richEditBox.Document.Selection.SetRange(start, end);
-                richEditBox.Document.Selection.TypeText(new string(' ', numSpaces));
-                e.Handled = true;
-
-            }
-        }
-
         /****************************
          *  Command bar buttons 
          ****************************/
@@ -325,5 +305,25 @@ namespace UWPCode.Views
             }
         }
 
+        private void EnterTabKey(RichEditBox richEditBox, Windows.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (!ViewModel.UseSoftTab)
+            {
+                richEditBox.Document.Selection.TypeText("\t");
+                e.Handled = true;
+            }
+            else
+            {
+                var start = richEditBox.Document.Selection.StartPosition;
+                var end = richEditBox.Document.Selection.EndPosition;
+                richEditBox.Document.Selection.HomeKey(Windows.UI.Text.TextRangeUnit.Line, false);
+                var lineBeginPos = richEditBox.Document.Selection.StartPosition;
+                var numSpaces = ViewModel.TabSize - ((start - lineBeginPos) % ViewModel.TabSize);
+                richEditBox.Document.Selection.SetRange(start, end);
+                richEditBox.Document.Selection.TypeText(new string(' ', numSpaces));
+                e.Handled = true;
+
+            }
+        }
     }
 }

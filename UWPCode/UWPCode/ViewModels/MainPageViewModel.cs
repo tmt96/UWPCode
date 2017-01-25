@@ -128,10 +128,7 @@ namespace UWPCode.ViewModels
             RaisePropertyChanged(SelectedBufferName);
         }
 
-        internal void SetCurrentBufferUnsaved()
-        {
-            BufferOrganizer.CurrentBuffer.IsSaved = false;
-        }
+        internal void SetCurrentBufferUnsaved() => BufferOrganizer.CurrentBuffer.IsSaved = false;
 
         private async Task<StorageFile> PickOpenFileAsync()
         {
@@ -178,10 +175,7 @@ namespace UWPCode.ViewModels
 
         private void UpdateBuffer(Models.Buffer buffer, string text) => buffer.Text = text;
 
-        internal void UpdateOldBuffer(string editorText)
-        {
-            UpdateBuffer(BufferOrganizer.CurrentBuffer, editorText);
-        }
+        internal void UpdateOldBuffer(string editorText) => UpdateBuffer(BufferOrganizer.CurrentBuffer, editorText);
 
     }
 }
