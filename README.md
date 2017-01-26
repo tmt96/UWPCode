@@ -3,7 +3,7 @@ Tuan Tran
 
 ## Introduction
 
-![UWPCode/UWPCode/Doc/OpenFileBar.png](Doc/OpenFileBar.png)
+![Hero Image](UWPCode/Doc/OpenFileBar.png)
 
 UWP is a code editor created from the ground up for the UWP platform, aiming to be an editor for quick and easy code manipulation for Windows 10 tablet device.
 
